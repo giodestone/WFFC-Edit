@@ -287,6 +287,11 @@ void ToolMain::Tick(MSG *msg)
 		//add to scenegraph
 		//resend scenegraph to Direct X renderer
 
+	if (m_toolInputCommands.mouseLMBDown)
+	{
+		m_selectedObject = m_d3dRenderer.MousePicking();
+	}
+	
 	//Renderer Update Call
 	m_d3dRenderer.Tick(&m_toolInputCommands);
 }
@@ -306,10 +311,16 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	case WM_MOUSEMOVE:
+		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
+		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
 		break;
 
-	case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too
-		//set some flag for the mouse button in inputcommands
+	case WM_LBUTTONDOWN:
+		m_toolInputCommands.mouseLMBDown = true;
+		break;
+
+	case WM_LBUTTONUP:
+		m_toolInputCommands.mouseLMBDown = false;
 		break;
 
 	}

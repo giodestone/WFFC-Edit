@@ -8,4 +8,8 @@ struct InputCommands
 	bool left;
 	bool rotRight;
 	bool rotLeft;
+
+	int mouseX = 0;
+	int mouseY = 0;
+	bool mouseLMBDown = false;
 };
