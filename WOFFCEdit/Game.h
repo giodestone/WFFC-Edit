@@ -35,7 +35,7 @@ public:
 	void Clear();
 
 	// Object Picking
-	int MousePicking();
+	std::vector<std::pair<float, int>> MousePicking();
 	
 	// IDeviceNotify
 	virtual void OnDeviceLost() override;

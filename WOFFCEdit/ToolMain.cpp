@@ -287,11 +287,6 @@ void ToolMain::Tick(MSG *msg)
 		//add to scenegraph
 		//resend scenegraph to Direct X renderer
 
-	if (m_toolInputCommands.mouseLMBDown)
-	{
-		m_selectedObject = m_d3dRenderer.MousePicking();
-	}
-	
 	//Renderer Update Call
 	m_d3dRenderer.Tick(&m_toolInputCommands);
 }
@@ -316,11 +311,11 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	case WM_LBUTTONDOWN:
-		m_toolInputCommands.mouseLMBDown = true;
+		OnMouseClicked();
 		break;
 
 	case WM_LBUTTONUP:
-		m_toolInputCommands.mouseLMBDown = false;
+		OnMouseUp();
 		break;
 
 	}
@@ -361,4 +356,17 @@ void ToolMain::UpdateInput(MSG * msg)
 	else m_toolInputCommands.rotLeft = false;
 
 	//WASD
+}
+
+void ToolMain::OnMouseClicked()
+{
+	m_toolInputCommands.mouseLMBDown = true;
+	
+	auto pickedObjects = m_d3dRenderer.MousePicking();
+	m_selectedObject = pickedObjects.empty() ? -1 : pickedObjects.at(0).second;
+}
+
+void ToolMain::OnMouseUp()
+{
+	m_toolInputCommands.mouseLMBDown = false;
 }

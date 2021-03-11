@@ -580,9 +580,10 @@ void Game::CreateWindowSizeDependentResources()
 
 
 
-int Game::MousePicking()
+std::vector<std::pair<float, int>> Game::MousePicking()
 {
-	int selectedID = -1;
+	auto intersectingIDs = std::vector<std::pair<float, int>>();
+
 	float pickedDistance = 0;
 
 	//setup near and far planes of frustum with mouse X and mouse y passed down from Toolmain. 
@@ -612,20 +613,26 @@ int Game::MousePicking()
 		//turn the transformed points into our picking vector. 
 		XMVECTOR pickingVector = farPoint - nearPoint;
 		pickingVector = XMVector3Normalize(pickingVector);
-
+		
 		//loop through mesh list for object
 		for (int y = 0; y < m_displayList[i].m_model.get()->meshes.size(); y++)
 		{
 			//checking for ray intersection
 			if (m_displayList[i].m_model.get()->meshes[y]->boundingBox.Intersects(nearPoint, pickingVector, pickedDistance))
 			{
-				selectedID = i;
+				intersectingIDs.push_back(std::make_pair(pickedDistance, i));
 			}
 		}
 	}
 
+	// sort by distance, ascending (closest first).
+	std::sort(intersectingIDs.begin(), intersectingIDs.end(), [] (std::pair<float, int> a, std::pair<float, int> b) -> bool
+	{
+		return a.first < b.first;
+	});
+	
 	//if we got a hit.  return it.  
-	return selectedID;
+	return intersectingIDs;
 }
 
 void Game::OnDeviceLost()
