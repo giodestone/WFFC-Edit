@@ -7,6 +7,7 @@ BEGIN_MESSAGE_MAP(MFCMain, CWinApp)
 	ON_COMMAND(ID_FILE_SAVETERRAIN, &MFCMain::MenuFileSaveTerrain)
 	ON_COMMAND(ID_EDIT_SELECT, &MFCMain::MenuEditSelect)
 	ON_COMMAND(ID_BUTTON40001,	&MFCMain::ToolBarButton1)
+	ON_COMMAND(ID_WINDOW_SHOWOBJECTPROPERTIES, &MFCMain::ShowObjectProperties)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TOOL, &CMyFrame::OnUpdatePage)
 END_MESSAGE_MAP()
 
@@ -98,15 +99,34 @@ void MFCMain::MenuEditSelect()
 	//m_ToolSelectDialogue.DoModal();	// start it up modal
 
 	//modeless dialogue must be declared in the class.   If we do local it will go out of scope instantly and destroy itself
-	m_ToolSelectDialogue.Create(IDD_DIALOG1);	//Start up modeless
-	m_ToolSelectDialogue.ShowWindow(SW_SHOW);	//show modeless
-	m_ToolSelectDialogue.SetObjectData(&m_ToolSystem.m_sceneGraph, &m_ToolSystem.m_selectedObject);
+	if (m_ToolSelectDialogue != nullptr)
+	{
+		delete m_ToolSelectDialogue;
+		m_ToolSelectDialogue = nullptr;
+	}
+
+	m_ToolSelectDialogue = new SelectDialogue(GetMainWnd());
+	m_ToolSelectDialogue->Create(IDD_DIALOG1);	//Start up modeless
+	m_ToolSelectDialogue->ShowWindow(SW_SHOW);	//show modeless
+	m_ToolSelectDialogue->SetObjectData(&m_ToolSystem.m_sceneGraph, &m_ToolSystem.m_selectedObject);
 }
 
 void MFCMain::ToolBarButton1()
 {
-	
 	m_ToolSystem.onActionSave();
+}
+
+void MFCMain::ShowObjectProperties()
+{
+	if (m_ObjectPropertiesDialog != nullptr)
+	{
+		delete m_ObjectPropertiesDialog;
+		m_ObjectPropertiesDialog = nullptr;
+	}
+
+	m_ObjectPropertiesDialog = new ObjectPropertiesDialog(GetMainWnd());
+	m_ObjectPropertiesDialog->Create(IDD_OBJECTPROPERTIESDIALOG);
+	m_ObjectPropertiesDialog->ShowWindow(SW_SHOW);	
 }
 
 

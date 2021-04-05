@@ -10,7 +10,6 @@ IMPLEMENT_DYNAMIC(SelectDialogue, CDialogEx)
 
 //Message map.  Just like MFCMAIN.cpp.  This is where we catch button presses etc and point them to a handy dandy method.
 BEGIN_MESSAGE_MAP(SelectDialogue, CDialogEx)
-	ON_COMMAND(IDOK, &SelectDialogue::End)					//ok button
 	ON_BN_CLICKED(IDOK, &SelectDialogue::OnBnClickedOk)		
 	ON_LBN_SELCHANGE(IDC_LIST1, &SelectDialogue::Select)	//listbox
 END_MESSAGE_MAP()
@@ -52,11 +51,6 @@ void SelectDialogue::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_LIST1, m_listBox);
-}
-
-void SelectDialogue::End()
-{
-	DestroyWindow();	//destory the window properly.  INcluding the links and pointers created.  THis is so the dialogue can start again. 
 }
 
 void SelectDialogue::Select()
