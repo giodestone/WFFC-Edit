@@ -1,6 +1,8 @@
 #pragma once
 #include <afxdialogex.h>
 
+#include <afxpropertygridctrl.h>
+
 
 // ObjectPropertiesDialog dialog
 
@@ -18,7 +20,15 @@ public:
 #endif
 
 protected:
+	
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
+	virtual BOOL OnInitDialog() override;
+	
 	DECLARE_MESSAGE_MAP()
+
+
+	void InitialisePropertyGrid();
+public:
+	CMFCPropertyGridCtrl propertiesGrid;
 };
