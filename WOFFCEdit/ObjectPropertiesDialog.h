@@ -30,5 +30,6 @@ protected:
 
 	void InitialisePropertyGrid();
 public:
-	CMFCPropertyGridCtrl propertiesGrid;
+	CMFCPropertyGridCtrl* propertiesGrid;
+	CMFCPropertyGridCtrl objectPropertiesGrid;
 };

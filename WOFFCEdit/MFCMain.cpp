@@ -1,4 +1,8 @@
 #include "MFCMain.h"
+
+#include <afxshellmanager.h>
+#include <afxvisualmanagerwindows.h>
+
 #include "resource.h"
 
 
@@ -13,6 +17,30 @@ END_MESSAGE_MAP()
 
 BOOL MFCMain::InitInstance()
 {
+	// InitCommonControlsEx() is required on Windows XP if an application
+	// manifest specifies use of ComCtl32.dll version 6 or later to enable
+	// visual styles.  Otherwise, any window creation will fail.
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	// Set this to include all the common control classes you want to use
+	// in your application.
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+
+	CWinApp::InitInstance();
+
+	AfxEnableControlContainer();
+
+	CShellManager* pShellManager = new CShellManager;
+
+	// Activate "Windows Native" visual manager for enabling themes in MFC controls
+	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+
+	if (pShellManager != nullptr)
+	{
+		delete pShellManager;
+	}
+	
 	//instanciate the mfc frame
 	m_frame = new CMyFrame();
 	m_pMainWnd = m_frame;
@@ -126,7 +154,7 @@ void MFCMain::ShowObjectProperties()
 
 	m_ObjectPropertiesDialog = new ObjectPropertiesDialog(GetMainWnd());
 	m_ObjectPropertiesDialog->Create(IDD_OBJECTPROPERTIESDIALOG);
-	m_ObjectPropertiesDialog->ShowWindow(SW_SHOW);	
+	m_ObjectPropertiesDialog->ShowWindow(SW_SHOW);
 }
 
 
