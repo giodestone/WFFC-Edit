@@ -39,7 +39,7 @@ BOOL ObjectPropertiesDialog::OnInitDialog()
 void ObjectPropertiesDialog::InitialisePropertyGrid()
 {
 	propertiesGrid = new CMFCPropertyGridCtrl;
-	propertiesGrid->Create(WS_CHILD | WS_BORDER | WS_VISIBLE, CRect(CPoint(6 * 1.5, 164 * 1.5), CSize(252 * 1.5, 204 * 1.5)), this, WM_USER + 100);
+	propertiesGrid->Create(WS_CHILD | WS_BORDER | WS_VISIBLE, CRect(CPoint(6 * 1.5, 200 * 1.5), CSize(252 * 1.5, 204 * 1.5)), this, WM_USER + 100);
 	propertiesGrid->EnableDescriptionArea();
 	propertiesGrid->SetVSDotNetLook();
 	propertiesGrid->MarkModifiedProperties();
@@ -55,6 +55,7 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	//item.mask = HDI_WIDTH;
 	//propertiesGrid->GetHeaderCtrl().SetItem(0, new HDITEM(item));
 
+	static TCHAR BASED_CODE szFilter[] = _T("All Files(*.*)|*.*||"); // Any file filter picker because I'm unsure of file formats this may need.
 	
 	//auto* group = new CMFCPropertyGridProperty(_T("uhh"));
 	auto* id = new CMFCPropertyGridProperty(_T("ID"), _T("0"), _T("The objects' ID."));
@@ -63,53 +64,96 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	auto* chunkID = new CMFCPropertyGridProperty(_T("Chunk ID"), _T("0"), _T("The objects' ChunkID."));
 	propertiesGrid->AddProperty(chunkID);
 
-	auto* texDiffuse = new CMFCPropertyGridProperty(_T("Texture Diffuse"), _T("/../../."), _T("Texture diffuse path."));
-	propertiesGrid->AddProperty(texDiffuse);
+	COleVariant aiNodeValue((short)VARIANT_TRUE, VT_BOOL);
+	auto* aiNode = new CMFCPropertyGridProperty(_T("AI Node"), aiNodeValue, _T("Whether this object is an AI node."));
+	propertiesGrid->AddProperty(aiNode);
+
+	COleVariant cameraValue((short)VARIANT_FALSE, VT_BOOL);
+	auto* camera = new CMFCPropertyGridProperty(_T("Camera"), cameraValue, _T("Whether the object is a camera."));
+	propertiesGrid->AddProperty(camera);
+	
+	
+	auto* renderingGroup = new CMFCPropertyGridProperty(_T("Rendering Properties"));
+
+	COleVariant texDiffuseValue(_T("/../../."));
+	auto* texDiffuse = new CMFCPropertyGridFileProperty(_T("Texture Diffuse"), TRUE, _T("Texture diffuse path."), _T(".*"), 0, szFilter, _T("Texture diffuse path."));
+	renderingGroup->AddSubItem(texDiffuse);
+
+	COleVariant meshValue(_T("/../../."));
+	auto* mesh = new CMFCPropertyGridFileProperty(_T("Mesh Path"), TRUE, meshValue, _T(".*"), 0, szFilter, _T("Path of the mesh model."));
+	renderingGroup->AddSubItem(mesh);
 
 	COleVariant renderValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* render = new CMFCPropertyGridProperty(_T("Render"), renderValue, _T("Whether the object be rendered."));
-	propertiesGrid->AddProperty(render);
+	renderingGroup->AddSubItem(render);
+	
+	propertiesGrid->AddProperty(renderingGroup);
+
+
+	auto* collisionGroup = new CMFCPropertyGridProperty(_T("Collision Properties"));
 
 	COleVariant collisonValue((short)VARIANT_TRUE, VT_BOOL);
-	auto* collision = new CMFCPropertyGridProperty(_T("Render"), collisonValue, _T("Whether the object should collide with others."));
-	propertiesGrid->AddProperty(collision);
+	auto* collision = new CMFCPropertyGridProperty(_T("Collide"), collisonValue, _T("Whether the object should collide with others."));
+	collisionGroup->AddSubItem(collision);
 
-	auto* collisionMesh = new CMFCPropertyGridProperty(_T("Collision Mesh"), _T("/../../."), _T("Collision mesh path."));
-	propertiesGrid->AddProperty(collisionMesh);
+	COleVariant collisionMeshValue(_T("/../../."));
+	auto* collisionMesh = new CMFCPropertyGridFileProperty(_T("Collision Mesh"), TRUE, collisionMeshValue, _T(".*"), 0, szFilter, _T("Collision mesh path."));
+	collisionGroup->AddSubItem(collisionMesh);
 
 	COleVariant collectableValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* collectable = new CMFCPropertyGridProperty(_T("Collectable"), collectableValue, _T("Whether the object is a collectable."));
-	propertiesGrid->AddProperty(collectable);
+	collisionGroup->AddSubItem(collectable);
 
 	COleVariant destructableValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* destructable = new CMFCPropertyGridProperty(_T("Destructable"), destructableValue, _T("Whether the object is destructable."));
-	propertiesGrid->AddProperty(destructable);
+	collisionGroup->AddSubItem(destructable);
 
-	auto* healthAmount = new CMFCPropertyGridProperty(_T("Health Amount"), _T("/../../."), _T("Texture diffuse path."));
-	propertiesGrid->AddProperty(healthAmount);
+	COleVariant healthAmountValue(_T("/../../."));
+	auto* healthAmount = new CMFCPropertyGridFileProperty(_T("Health Amount"), TRUE, healthAmountValue, _T(".*"), 0, szFilter, _T("Texture diffuse path."));
+	collisionGroup->AddSubItem(healthAmount);
 
+	propertiesGrid->AddProperty(collisionGroup);
+
+
+	auto* editorGroup = new CMFCPropertyGridProperty(_T("Editor Properties"));
+	
 	COleVariant editorRenderValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* editorRender = new CMFCPropertyGridProperty(_T("Editor Render"), editorRenderValue, _T("Whether to show the object in the editor."));
-	propertiesGrid->AddProperty(editorRender);
+	editorGroup->AddSubItem(editorRender);
 
 	COleVariant editorTextureVisValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* editorTextureVis = new CMFCPropertyGridProperty(_T("Texture Visible in Editor"), editorTextureVisValue, _T("Whether the texture is visible in the editor."));
-	propertiesGrid->AddProperty(editorTextureVis);
+	editorGroup->AddSubItem(editorTextureVis);
 
 	COleVariant editorNormalVisValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* editorNormalsVis = new CMFCPropertyGridProperty(_T("Normals Visible in Editor"), editorNormalVisValue, _T("Whether the normals are visible in the editor."));
-	propertiesGrid->AddProperty(editorNormalsVis);
+	editorGroup->AddSubItem(editorNormalsVis);
 
 	COleVariant editorCollisionVisValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* editorCollisionVis = new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), editorCollisionVisValue, _T("Whether the normals are visible in the editor."));
-	propertiesGrid->AddProperty(editorCollisionVis);
+	editorGroup->AddSubItem(editorCollisionVis);
 
 	COleVariant editorPivotVisValue((short)VARIANT_TRUE, VT_BOOL);
 	auto* editorPivotVis = new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), editorPivotVisValue, _T("Whether the normals are visible in the editor."));
-	propertiesGrid->AddProperty(editorPivotVis);
+	editorGroup->AddSubItem(editorPivotVis);
 
+	COleVariant snapToGroundValue((short)VARIANT_TRUE, VT_BOOL);
+	auto* snapToGround = new CMFCPropertyGridProperty(_T("Snap To Ground"), editorPivotVisValue, _T("Whether the placed object should snap to ground."));
+	editorGroup->AddSubItem(snapToGround);
+	
+	COleVariant playInEditorValue((short)VARIANT_TRUE, VT_BOOL);
+	auto* playInEditor = new CMFCPropertyGridProperty(_T("Play Audio In Editor"), playInEditorValue, _T("Whether the audio file shoudl play in editor."));
+	editorGroup->AddSubItem(playInEditor);
+
+	COleVariant editorWireframeValue((short)VARIANT_TRUE, VT_BOOL);
+	auto* editorWireframe = new CMFCPropertyGridProperty(_T("Display Wireframe in Editor"), editorPivotVisValue, _T("Whether this object should appear as wireframe in the editor."));
+	editorGroup->AddSubItem(editorWireframe);
+
+	propertiesGrid->AddProperty(editorGroup);
+	
 	
 	auto* pivotGroup = new CMFCPropertyGridProperty( _T("Pivot Coordinates"));
+
 	COleVariant pivotXValue(0.f);
 	COleVariant pivotYValue(0.f);
 	COleVariant pivotZValue(0.f);
@@ -124,15 +168,6 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	pivotGroup->AddSubItem(pivotZ);
 
 	propertiesGrid->AddProperty(pivotGroup);
-
-	
-	COleVariant snapToGroundValue((short)VARIANT_TRUE, VT_BOOL);
-	auto* snapToGround = new CMFCPropertyGridProperty(_T("Snap To Ground"), editorPivotVisValue, _T("Whether the placed object should snap to ground."));
-	propertiesGrid->AddProperty(snapToGround);
-
-	COleVariant aiNodeValue((short)VARIANT_TRUE, VT_BOOL);
-	auto* aiNode = new CMFCPropertyGridProperty(_T("AI Node"), aiNodeValue, _T("Whether this object is an AI node."));
-	propertiesGrid->AddProperty(aiNode);
 
 	
 	auto* audioGroup = new CMFCPropertyGridProperty(_T("Audio Properties"));
@@ -161,10 +196,6 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	auto* playOnInit = new CMFCPropertyGridProperty(_T("Play On Init"), playOnInitValue, _T("Whether the audio file should play the sound when initialized."));
 	audioGroup->AddSubItem(playOnInit);
 
-	COleVariant playInEditorValue((short)VARIANT_TRUE, VT_BOOL);
-	auto* playInEditor = new CMFCPropertyGridProperty(_T("Play Audio In Editor"), playInEditorValue, _T("Whether the audio file shoudl play in editor."));
-	audioGroup->AddSubItem(playInEditor);
-
 	COleVariant minDistValue((long)0);
 	auto* minDist = new CMFCPropertyGridProperty(_T("Minimum Distance"), minDistValue, _T("Minimum falloff distance of the sound."));
 	minDist->EnableSpinControl();
@@ -176,11 +207,6 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	audioGroup->AddSubItem(maxDist);
 	
 	propertiesGrid->AddProperty(audioGroup);
-
-
-	COleVariant cameraValue((short)VARIANT_FALSE, VT_BOOL);
-	auto* camera = new CMFCPropertyGridProperty(_T("Camera"), cameraValue, _T("Whether the object is a camera."));
-	propertiesGrid->AddProperty(camera);
 
 
 	auto* pathGroup = new CMFCPropertyGridProperty(_T("Path Properties"));
@@ -202,11 +228,6 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	pathGroup->AddSubItem(parentID);
 
 	propertiesGrid->AddProperty(pathGroup);
-
-
-	COleVariant editorWireframeValue((short)VARIANT_TRUE, VT_BOOL);
-	auto* editorWireframe = new CMFCPropertyGridProperty(_T("Display Wireframe in Editor"), editorPivotVisValue, _T("Whether this object should appear as wireframe in the editor."));
-	propertiesGrid->AddProperty(editorWireframe);
 
 
 	auto* lightGroup = new CMFCPropertyGridProperty(_T("Light Properties"));
