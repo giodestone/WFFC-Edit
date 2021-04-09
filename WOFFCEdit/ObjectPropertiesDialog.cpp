@@ -44,16 +44,7 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	propertiesGrid->SetVSDotNetLook();
 	propertiesGrid->MarkModifiedProperties();
 
-	// Dont try dynamic layout it corrupts the stack
-	//propertiesGrid->EnableDynamicLayout();
-	//auto propGridDynamicLayout = propertiesGrid->GetDynamicLayout();
-	//auto propGridSizeSettings = CMFCDynamicLayout::SizeHorizontalAndVertical(100, 100);
-	//auto propGridMoveSettings = CMFCDynamicLayout::MoveNone();
-	//propGridDynamicLayout->AddItem(propertiesGrid->GetSafeHwnd(), propGridMoveSettings, propGridSizeSettings);
-	//HDITEM item;
-	//item.cxy = 120;
-	//item.mask = HDI_WIDTH;
-	//propertiesGrid->GetHeaderCtrl().SetItem(0, new HDITEM(item));
+	// Don't try dynamic layout it corrupts the stack.
 
 	static TCHAR BASED_CODE szFilter[] = _T("All Files(*.*)|*.*||"); // Any file filter picker because I'm unsure of file formats this may need.
 	
@@ -257,9 +248,25 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	propertiesGrid->AddProperty(lightGroup);
 }
 
+afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM wParam, LPARAM lParam)
+{
+	OutputDebugStringW(L"Property box changed!");
+
+	auto* currentProperty = reinterpret_cast<CMFCPropertyGridProperty*>(lParam);
+
+	// Get position database name
+
+	// Create query
+
+	// Launch query
+
+	
+	return 0;
+}
 
 
 BEGIN_MESSAGE_MAP(ObjectPropertiesDialog, CDialogEx)
+	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertiesGridPropertyUpdated)
 END_MESSAGE_MAP()
 
 
