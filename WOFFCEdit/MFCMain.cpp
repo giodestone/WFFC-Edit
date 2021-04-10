@@ -155,6 +155,7 @@ void MFCMain::ShowObjectProperties()
 	m_ObjectPropertiesDialog = new ObjectPropertiesDialog(GetMainWnd());
 	m_ObjectPropertiesDialog->Create(IDD_OBJECTPROPERTIESDIALOG);
 	m_ObjectPropertiesDialog->ShowWindow(SW_SHOW);
+	m_ObjectPropertiesDialog->Initialize();
 }
 
 
