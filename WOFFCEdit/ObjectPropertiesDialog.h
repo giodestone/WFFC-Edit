@@ -38,7 +38,8 @@ protected:
 	float testFloat;
 	std::wstring testString;
 
-	std::unordered_map<std::string, COleVariant> databaseNameToVariable;
+	std::unordered_map<std::string, CMFCPropertyGridProperty*> databaseNameToProperty;
+	std::unordered_map<CMFCPropertyGridProperty*, std::string> propertyToDatabaseName;
 
 	SceneObject* currentSceneObject;
 
@@ -46,11 +47,13 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	virtual BOOL OnInitDialog() override;
-
+	
 	/// <summary>
 	/// Create the property grid (as adding through editor doesn't work) and populate it with values.
 	/// </summary>
 	void InitialisePropertyGrid();
+
+	void InitialisePropertyToDatabaseNameLookup();
 
 	void UpdateFieldsWithDataFromCurrentSceneObject();
 
@@ -64,15 +67,16 @@ protected:
 	/// <returns>True if a double; false if not.</returns>
 	bool VerifyContentsAreFloat(CEdit& field, float previousValue, float& outValue);
 
+	/// <summary>
+	/// Convert a std::string to CString by also converting it to a std::wstring in between.
+	/// </summary>
+	/// <param name="str"></param>
+	/// <returns></returns>
+	CString ConvertStringToCString(const std::string str) const;
+
+	VARIANT_BOOL ConvertBoolToVARIANTBOOL(const bool b) const;
+
 	afx_msg LRESULT OnPropertiesGridPropertyUpdated(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnEnUpdatePosxedit();
-	afx_msg void OnEnUpdatePosyedit();
-	afx_msg void OnEnUpdatePoszedit();
-	afx_msg void OnEnUpdateRotxedit();
-	afx_msg void OnEnUpdateRotzedit();
-	afx_msg void OnEnUpdateScalexedit();
-	afx_msg void OnEnUpdateScaleyedit();
-	afx_msg void OnEnUpdateScalezedit();
 
 	DECLARE_MESSAGE_MAP()
 public:

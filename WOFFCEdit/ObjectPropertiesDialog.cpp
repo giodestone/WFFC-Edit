@@ -17,6 +17,7 @@ IMPLEMENT_DYNAMIC(ObjectPropertiesDialog, CDialogEx)
 
 ObjectPropertiesDialog::ObjectPropertiesDialog(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_OBJECTPROPERTIESDIALOG, pParent)
+	, currentSceneObject(nullptr)
 {
 }
 
@@ -29,13 +30,7 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 	CDialogEx::DoDataExchange(pDX);
 	//DDX_Control(pDX, WM_USER + 100, *propertiesGrid);
 	DDX_Control(pDX, IDC_NAMEEDIT, nameEdit);
-	CString temp;
-	DDX_Text(pDX, IDC_NAMEEDIT, temp);
-	testString = std::wstring((LPCTSTR)temp);
-
 	DDX_Control(pDX, IDC_POSXEDIT, posXEdit);
-	DDX_Text(pDX, IDC_POSXEDIT, testFloat);
-
 	DDX_Control(pDX, IDC_POSYEDIT, posYEdit);
 	DDX_Control(pDX, IDC_POSZEDIT, posZEdit);
 	DDX_Control(pDX, IDC_ROTXEDIT, rotXEdit);
@@ -45,13 +40,35 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SCALEYEDIT, scaleYEdit);
 	DDX_Control(pDX, IDC_SCALEZEDIT, scaleZEdit);
 	DDX_Control(pDX, IDC_OBJECTPROPERTIESGRID, propertiesGrid);
+
+	if (currentSceneObject != nullptr)
+	{
+		CString temp(currentSceneObject->name.c_str(), currentSceneObject->name.length());
+		DDX_Text(pDX, IDC_NAMEEDIT, temp);
+		auto tempTo = std::string();
+
+		DDX_Text(pDX, IDC_POSXEDIT, currentSceneObject->posX);
+		DDX_Text(pDX, IDC_POSYEDIT, currentSceneObject->posY);
+		DDX_Text(pDX, IDC_POSZEDIT, currentSceneObject->posZ);
+		
+		DDX_Text(pDX, IDC_ROTXEDIT, currentSceneObject->rotX);
+		DDX_Text(pDX, IDC_rotyedit, currentSceneObject->rotY);
+		DDX_Text(pDX, IDC_ROTZEDIT, currentSceneObject->rotZ);
+
+		DDX_Text(pDX, IDC_SCALEXEDIT, currentSceneObject->scaX);
+		DDX_Text(pDX, IDC_SCALEYEDIT, currentSceneObject->scaY);
+		DDX_Text(pDX, IDC_SCALEZEDIT, currentSceneObject->scaZ);
+	}
 }
 
 BOOL ObjectPropertiesDialog::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 	InitialisePropertyGrid();
-	SetAllFieldsEnableState(false);
+
+	
+	if (currentSceneObject == nullptr) 
+		SetAllFieldsEnableState(false);
 	return true;
 }
 
@@ -61,39 +78,39 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	propertiesGrid.SetVSDotNetLook();
 	propertiesGrid.MarkModifiedProperties();
 
-	// Don't try dynamic layout it corrupts the stack.
-
 	static TCHAR BASED_CODE szFilter[] = _T("All Files(*.*)|*.*||"); // Any file filter picker because I'm unsure of file formats this may need.
 
-	databaseNameToVariable.insert({ "id", COleVariant((long)0) });
-	auto* id = new CMFCPropertyGridProperty(_T("ID"), databaseNameToVariable["id"], _T("The objects' ID."));
+	databaseNameToProperty.insert({ "id",  new CMFCPropertyGridProperty(_T("ID"), COleVariant((long)0), _T("The objects' ID.")) });
+	auto* id = databaseNameToProperty["id"];
+	id->AllowEdit(false);
 	propertiesGrid.AddProperty(id);
 
-	databaseNameToVariable.insert({ "chunk_id", COleVariant((long)0) });
-	auto* chunkID = new CMFCPropertyGridProperty(_T("Chunk ID"), databaseNameToVariable["chunk_id"], _T("The objects' ChunkID."));
+	databaseNameToProperty.insert({ "chunk_id", new CMFCPropertyGridProperty(_T("Chunk ID"), COleVariant((long)0), _T("The objects' ChunkID.")) });
+	auto* chunkID = databaseNameToProperty["chunk_id"];
+	chunkID->AllowEdit(false);
 	propertiesGrid.AddProperty(chunkID);
 
-	databaseNameToVariable.insert({ "ai_node", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* aiNode = new CMFCPropertyGridProperty(_T("AI Node"), databaseNameToVariable["ai_node"], _T("Whether this object is an AI node."));
+	databaseNameToProperty.insert({ "ai_node", new CMFCPropertyGridProperty(_T("AI Node"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether this object is an AI node.")) });
+	auto* aiNode = databaseNameToProperty["ai_node"];
 	propertiesGrid.AddProperty(aiNode);
 
-	databaseNameToVariable.insert({ "camera", COleVariant((short)VARIANT_FALSE, VT_BOOL) });
-	auto* camera = new CMFCPropertyGridProperty(_T("Camera"), databaseNameToVariable["camera"], _T("Whether the object is a camera."));
+	databaseNameToProperty.insert({ "camera", new CMFCPropertyGridProperty(_T("Camera"), COleVariant((short)VARIANT_FALSE, VT_BOOL), _T("Whether the object is a camera.")) });
+	auto* camera = databaseNameToProperty["camera"];
 	propertiesGrid.AddProperty(camera);
 	
 	
 	auto* renderingGroup = new CMFCPropertyGridProperty(_T("Rendering Properties"));
 
-	databaseNameToVariable.insert({ "tex_diffuse", COleVariant(_T("/../../.")) });
-	auto* texDiffuse = new CMFCPropertyGridFileProperty(_T("Texture Diffuse"), TRUE, _T("Texture diffuse path."), _T(".*"), 0, szFilter, _T("Texture diffuse path."));
+	databaseNameToProperty.insert({ "tex_diffuse", new CMFCPropertyGridFileProperty(_T("Texture Diffuse"), TRUE, COleVariant(_T("/../../.")), _T(".*"), 0, szFilter, _T("Texture diffuse path.")) });
+	auto* texDiffuse = databaseNameToProperty["tex_diffuse"];
 	renderingGroup->AddSubItem(texDiffuse);
 
-	databaseNameToVariable.insert({ "mesh", COleVariant(_T("/../../.")) });
-	auto* mesh = new CMFCPropertyGridFileProperty(_T("Mesh Path"), TRUE, databaseNameToVariable["mesh"], _T(".*"), 0, szFilter, _T("Path of the mesh model."));
+	databaseNameToProperty.insert({ "mesh", new CMFCPropertyGridFileProperty(_T("Mesh Path"), TRUE, COleVariant(_T("/../../.")), _T(".*"), 0, szFilter, _T("Path of the mesh model.")) });
+	auto* mesh = databaseNameToProperty["mesh"];
 	renderingGroup->AddSubItem(mesh);
 
-	databaseNameToVariable.insert({ "render", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* render = new CMFCPropertyGridProperty(_T("Render"), databaseNameToVariable["render"], _T("Whether the object be rendered."));
+	databaseNameToProperty.insert({ "render", new CMFCPropertyGridProperty(_T("Render"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object be rendered.")) });
+	auto* render = databaseNameToProperty["render"];
 	renderingGroup->AddSubItem(render);
 	
 	propertiesGrid.AddProperty(renderingGroup);
@@ -101,24 +118,24 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 
 	auto* collisionGroup = new CMFCPropertyGridProperty(_T("Collision Properties"));
 
-	databaseNameToVariable.insert({ "collision", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* collision = new CMFCPropertyGridProperty(_T("Collide"), databaseNameToVariable["collision"], _T("Whether the object should collide with others."));
+	databaseNameToProperty.insert({ "collision", new CMFCPropertyGridProperty(_T("Collide"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object should collide with others.")) });
+	auto* collision = databaseNameToProperty["collision"];
 	collisionGroup->AddSubItem(collision);
 
-	databaseNameToVariable.insert({ "collisionMesh", COleVariant(_T("/../../.")) });
-	auto* collisionMesh = new CMFCPropertyGridFileProperty(_T("Collision Mesh"), TRUE, databaseNameToVariable["collisionMesh"], _T(".*"), 0, szFilter, _T("Collision mesh path."));
+	databaseNameToProperty.insert({ "collision_mesh", new CMFCPropertyGridFileProperty(_T("Collision Mesh"), TRUE, COleVariant(_T("/../../.")), _T(".*"), 0, szFilter, _T("Collision mesh path.")) });
+	auto* collisionMesh = databaseNameToProperty["collision_mesh"];
 	collisionGroup->AddSubItem(collisionMesh);
 
-	databaseNameToVariable.insert({ "collectable", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* collectable = new CMFCPropertyGridProperty(_T("Collectable"), databaseNameToVariable["collectable"], _T("Whether the object is a collectable."));
+	databaseNameToProperty.insert({ "collectable", new CMFCPropertyGridProperty(_T("Collectable"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object is a collectable.")) });
+	auto* collectable = databaseNameToProperty["collectable"];
 	collisionGroup->AddSubItem(collectable);
 
-	databaseNameToVariable.insert({ "destructable", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* destructable = new CMFCPropertyGridProperty(_T("Destructable"), databaseNameToVariable["destructable"], _T("Whether the object is destructable."));
+	databaseNameToProperty.insert({ "destructable", new CMFCPropertyGridProperty(_T("Destructable"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object is destructable.")) });
+	auto* destructable = databaseNameToProperty["destructable"];
 	collisionGroup->AddSubItem(destructable);
 
-	databaseNameToVariable.insert({ "health_amount", COleVariant((long)0) });
-	auto* healthAmount = new CMFCPropertyGridProperty(_T("Health Amount"), databaseNameToVariable["health_amount"],_T("How much health the object has."));
+	databaseNameToProperty.insert({ "health_amount", new CMFCPropertyGridProperty(_T("Health Amount"), COleVariant((long)0),_T("How much health the object has.")) });
+	auto* healthAmount = databaseNameToProperty["health_amount"];
 	collisionGroup->AddSubItem(healthAmount);
 
 	propertiesGrid.AddProperty(collisionGroup);
@@ -126,36 +143,36 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 
 	auto* editorGroup = new CMFCPropertyGridProperty(_T("Editor Properties"));
 	
-	databaseNameToVariable.insert({ "editor_render", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorRender = new CMFCPropertyGridProperty(_T("Editor Render"), databaseNameToVariable["editor_render"], _T("Whether to show the object in the editor."));
+	databaseNameToProperty.insert({ "editor_render", new CMFCPropertyGridProperty(_T("Editor Render"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether to show the object in the editor.")) });
+	auto* editorRender = databaseNameToProperty["editor_render"];
 	editorGroup->AddSubItem(editorRender);
 
-	databaseNameToVariable.insert({ "editor_texture_vis", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorTextureVis = new CMFCPropertyGridProperty(_T("Texture Visible in Editor"), databaseNameToVariable["editor_texture_vis"], _T("Whether the texture is visible in the editor."));
+	databaseNameToProperty.insert({ "editor_texture_vis", new CMFCPropertyGridProperty(_T("Texture Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the texture is visible in the editor.")) });
+	auto* editorTextureVis = databaseNameToProperty["editor_texture_vis"];
 	editorGroup->AddSubItem(editorTextureVis);
 
-	databaseNameToVariable.insert({ "editor_normal_vis", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorNormalsVis = new CMFCPropertyGridProperty(_T("Normals Visible in Editor"), databaseNameToVariable["editor_normal_vis"], _T("Whether the normals are visible in the editor."));
+	databaseNameToProperty.insert({ "editor_normal_vis", new CMFCPropertyGridProperty(_T("Normals Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });
+	auto* editorNormalsVis = databaseNameToProperty["editor_normal_vis"];
 	editorGroup->AddSubItem(editorNormalsVis);
 
-	databaseNameToVariable.insert({ "editor_collision_vis", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorCollisionVis = new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), databaseNameToVariable["editor_collision_vis"], _T("Whether the normals are visible in the editor."));
+	databaseNameToProperty.insert({ "editor_collision_vis", new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });
+	auto* editorCollisionVis = databaseNameToProperty["editor_collision_vis"];
 	editorGroup->AddSubItem(editorCollisionVis);
 
-	databaseNameToVariable.insert({ "editor_pivot_vis", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorPivotVis = new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), databaseNameToVariable["editor_pivot_vis"], _T("Whether the normals are visible in the editor."));
+	databaseNameToProperty.insert({ "editor_pivot_vis", new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });
+	auto* editorPivotVis = databaseNameToProperty["editor_pivot_vis"];
 	editorGroup->AddSubItem(editorPivotVis);
 
-	databaseNameToVariable.insert({ "snap_to_ground", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* snapToGround = new CMFCPropertyGridProperty(_T("Snap To Ground"), databaseNameToVariable["snap_to_ground"], _T("Whether the placed object should snap to ground."));
+	databaseNameToProperty.insert({ "snap_to_ground", new CMFCPropertyGridProperty(_T("Snap To Ground"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the placed object should snap to ground.")) });
+	auto* snapToGround = databaseNameToProperty["snap_to_ground"];
 	editorGroup->AddSubItem(snapToGround);
 	
-	databaseNameToVariable.insert({ "play_in_editor", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* playInEditor = new CMFCPropertyGridProperty(_T("Play Audio In Editor"), databaseNameToVariable["play_in_editor"], _T("Whether the audio file shoudl play in editor."));
+	databaseNameToProperty.insert({ "play_in_editor", new CMFCPropertyGridProperty(_T("Play Audio In Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the audio file shoudl play in editor.")) });
+	auto* playInEditor = databaseNameToProperty["play_in_editor"];
 	editorGroup->AddSubItem(playInEditor);
 
-	databaseNameToVariable.insert({ "editor_wireframe", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* editorWireframe = new CMFCPropertyGridProperty(_T("Display Wireframe in Editor"), databaseNameToVariable["editor_wireframe"], _T("Whether this object should appear as wireframe in the editor."));
+	databaseNameToProperty.insert({ "editor_wireframe", new CMFCPropertyGridProperty(_T("Display Wireframe in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether this object should appear as wireframe in the editor.")) });
+	auto* editorWireframe = databaseNameToProperty["editor_wireframe"];
 	editorGroup->AddSubItem(editorWireframe);
 
 	propertiesGrid.AddProperty(editorGroup);
@@ -163,16 +180,16 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	
 	auto* pivotGroup = new CMFCPropertyGridProperty( _T("Pivot Coordinates"));
 
-	databaseNameToVariable.insert({ "pivot_x", COleVariant(0.f) });
-	auto* pivotX = new CMFCPropertyGridProperty(_T("Pivot X"), databaseNameToVariable["pivot_x"], _T("X coordinate of the pivot value."));
+	databaseNameToProperty.insert({ "pivot_x", new CMFCPropertyGridProperty(_T("Pivot X"), COleVariant(0.f), _T("X coordinate of the pivot value.")) });
+	auto* pivotX = databaseNameToProperty["pivot_x"];
 	pivotGroup->AddSubItem(pivotX);
 
-	databaseNameToVariable.insert({ "pivot_y", COleVariant(0.f) });
-	auto* pivotY = new CMFCPropertyGridProperty(_T("Pivot Y"), databaseNameToVariable["pivot_y"], _T("Y coordinate of the pivot value."));
+	databaseNameToProperty.insert({ "pivot_y", new CMFCPropertyGridProperty(_T("Pivot Y"), COleVariant(0.f), _T("Y coordinate of the pivot value.")) });
+	auto* pivotY = databaseNameToProperty["pivot_y"];
 	pivotGroup->AddSubItem(pivotY);
 
-	databaseNameToVariable.insert({ "pivot_z", COleVariant(0.f) });
-	auto* pivotZ = new CMFCPropertyGridProperty(_T("Pivot Z"), databaseNameToVariable["pivot_z"], _T("Z coordinate of the pivot value."));
+	databaseNameToProperty.insert({ "pivot_z", new CMFCPropertyGridProperty(_T("Pivot Z"), COleVariant(0.f), _T("Z coordinate of the pivot value.")) });
+	auto* pivotZ = databaseNameToProperty["pivot_z"];
 	pivotGroup->AddSubItem(pivotZ);
 
 	propertiesGrid.AddProperty(pivotGroup);
@@ -180,37 +197,37 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	
 	auto* audioGroup = new CMFCPropertyGridProperty(_T("Audio Properties"));
 	
-	databaseNameToVariable.insert({ "audio_file", COleVariant(_T("/../../.")) });
-	auto* audioFile = new CMFCPropertyGridProperty(_T("Audio File Path"), databaseNameToVariable["audio_file"], _T("Path of the Audio File."));
+	databaseNameToProperty.insert({ "audio_file", new CMFCPropertyGridProperty(_T("Audio File Path"), COleVariant(_T("/../../.")), _T("Path of the Audio File.")) });
+	auto* audioFile = databaseNameToProperty["audio_file"];
 	audioGroup->AddSubItem(audioFile);
 
-	databaseNameToVariable.insert({ "volume", COleVariant(0.f) });
-	auto* volume = new CMFCPropertyGridProperty(_T("Volume"), databaseNameToVariable["volume"], _T("Volume of the audio file when played."));
+	databaseNameToProperty.insert({ "volume", new CMFCPropertyGridProperty(_T("Volume"), COleVariant(0.f), _T("Volume of the audio file when played.")) });
+	auto* volume = databaseNameToProperty["volume"];
 	audioGroup->AddSubItem(volume);
 
-	databaseNameToVariable.insert({ "pitch", COleVariant(0.f) });
-	auto* pitch = new CMFCPropertyGridProperty(_T("Pitch"), databaseNameToVariable["pitch_value"], _T("Pitch of the audio file when played."));
+	databaseNameToProperty.insert({ "pitch", new CMFCPropertyGridProperty(_T("Pitch"), COleVariant(0.f), _T("Pitch of the audio file when played.")) });
+	auto* pitch = databaseNameToProperty["pitch"];
 	audioGroup->AddSubItem(pitch);
 
-	databaseNameToVariable.insert({ "pan", COleVariant(0.f) });
-	auto* pan = new CMFCPropertyGridProperty(_T("Pan"), databaseNameToVariable["pan"], _T("Pan of the left/right channel when played."));
+	databaseNameToProperty.insert({ "pan", new CMFCPropertyGridProperty(_T("Pan"), COleVariant(0.f), _T("Pan of the left/right channel when played.")) });
+	auto* pan = databaseNameToProperty["pan"];
 	audioGroup->AddSubItem(pan);
 
-	databaseNameToVariable.insert({ "one_shot", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* oneShot = new CMFCPropertyGridProperty(_T("One Shot"), databaseNameToVariable["one_shot"], _T("Whether the audio file is one shot."));
+	databaseNameToProperty.insert({ "one_shot", new CMFCPropertyGridProperty(_T("One Shot"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the audio file is one shot.")) });
+	auto* oneShot = databaseNameToProperty["one_shot"];
 	audioGroup->AddSubItem(oneShot);
 
-	databaseNameToVariable.insert({ "play_on_init", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* playOnInit = new CMFCPropertyGridProperty(_T("Play On Init"), databaseNameToVariable["play_on_init"], _T("Whether the audio file should play the sound when initialized."));
+	databaseNameToProperty.insert({ "play_on_init", new CMFCPropertyGridProperty(_T("Play On Init"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the audio file should play the sound when initialized.")) });
+	auto* playOnInit = databaseNameToProperty["play_on_init"];
 	audioGroup->AddSubItem(playOnInit);
 
-	databaseNameToVariable.insert({ "min_dist", COleVariant((long)0) });
-	auto* minDist = new CMFCPropertyGridProperty(_T("Minimum Distance"), databaseNameToVariable["min_dist"], _T("Minimum falloff distance of the sound."));
+	databaseNameToProperty.insert({ "min_dist", new CMFCPropertyGridProperty(_T("Minimum Distance"), COleVariant((long)0), _T("Minimum falloff distance of the sound.")) });
+	auto* minDist = databaseNameToProperty["min_dist"];
 	minDist->EnableSpinControl();
 	audioGroup->AddSubItem(minDist);
 
-	databaseNameToVariable.insert({ "max_dist", COleVariant((long)0) });
-	auto* maxDist = new CMFCPropertyGridProperty(_T("Maximum Distance"), databaseNameToVariable["max_dist"], _T("Maximum falloff distance of the sound."));
+	databaseNameToProperty.insert({ "max_dist", new CMFCPropertyGridProperty(_T("Maximum Distance"), COleVariant((long)0), _T("Maximum falloff distance of the sound.")) });
+	auto* maxDist = databaseNameToProperty["max_dist"];
 	maxDist->EnableSpinControl();
 	audioGroup->AddSubItem(maxDist);
 	
@@ -219,20 +236,20 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 
 	auto* pathGroup = new CMFCPropertyGridProperty(_T("Path Properties"));
 
-	databaseNameToVariable.insert({ "path_node", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* pathNode = new CMFCPropertyGridProperty(_T("Path Node"), databaseNameToVariable["path_node"], _T("Whether the object is part of a node."));
+	databaseNameToProperty.insert({ "path_node", new CMFCPropertyGridProperty(_T("Path Node"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object is part of a node.")) });
+	auto* pathNode = databaseNameToProperty["path_node"];
 	pathGroup->AddSubItem(pathNode);
 	
-	databaseNameToVariable.insert({ "path_node_start", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* pathNodeStart = new CMFCPropertyGridProperty(_T("Path Node Start"), databaseNameToVariable["path_node_start"], _T("Whether the object is the start of a node."));
+	databaseNameToProperty.insert({ "path_node_start", new CMFCPropertyGridProperty(_T("Path Node Start"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object is the start of a node.")) });
+	auto* pathNodeStart = databaseNameToProperty["path_node_start"];
 	pathGroup->AddSubItem(pathNodeStart);
 
-	databaseNameToVariable.insert({ "path_node_end", COleVariant((short)VARIANT_TRUE, VT_BOOL) });
-	auto* pathNodeEnd = new CMFCPropertyGridProperty(_T("Path Node End"), databaseNameToVariable["path_node_end"], _T("Whether the object is the end of a node."));
+	databaseNameToProperty.insert({ "path_node_end", new CMFCPropertyGridProperty(_T("Path Node End"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the object is the end of a node.")) });
+	auto* pathNodeEnd = databaseNameToProperty["path_node_end"];
 	pathGroup->AddSubItem(pathNodeEnd);
 
-	databaseNameToVariable.insert({ "parent_id", COleVariant((long)0) });
-	auto* parentID = new CMFCPropertyGridProperty(_T("Parent ID"), databaseNameToVariable["parent_id"], _T("ID of the parent node."));
+	databaseNameToProperty.insert({ "parent_id", new CMFCPropertyGridProperty(_T("Parent ID"), COleVariant((long)0), _T("ID of the parent node.")) });
+	auto* parentID = databaseNameToProperty["parent_id"];
 	pathGroup->AddSubItem(parentID);
 
 	propertiesGrid.AddProperty(pathGroup);
@@ -240,27 +257,34 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 
 	auto* lightGroup = new CMFCPropertyGridProperty(_T("Light Properties"));
 
-	// Light diffuse + light specular handled differently! (Cannot get into COleVariant safely)
-	auto* lightDiffuse = new CMFCPropertyGridColorProperty(_T("Light Diffuse"), RGB(0, 0, 0), NULL, _T("Diffuse colour of the light."));
+	databaseNameToProperty.insert({ "light_type", new CMFCPropertyGridProperty(_T("Light Type"), COleVariant((long)0), _T("Type of light this light is.")) });
+	auto* lightType = databaseNameToProperty["light_type"];
+	lightType->EnableSpinControl();
+	lightGroup->AddSubItem(lightType);
+	
+	// Light diffuse + light specular handled differently! Not as three inidivudal items but rather as one!
+	databaseNameToProperty.insert({ "light_diffuse", new CMFCPropertyGridColorProperty(_T("Light Diffuse"), RGB(0, 0, 0), NULL, _T("Diffuse colour of the light.")) });
+	auto* lightDiffuse = databaseNameToProperty["light_diffuse"];
 	lightGroup->AddSubItem(lightDiffuse);
 
-	auto* lightSpecular = new CMFCPropertyGridColorProperty(_T("Light Specular"), RGB(0, 0, 0), NULL, _T("Specular colour of the light."));
+	databaseNameToProperty.insert({ "light_specular", new CMFCPropertyGridColorProperty(_T("Light Specular"), RGB(0, 0, 0), NULL, _T("Specular colour of the light.")) });
+	auto* lightSpecular = databaseNameToProperty["light_specular"];
 	lightGroup->AddSubItem(lightSpecular);
 
-	databaseNameToVariable.insert({ "light_spot_cutoff", COleVariant(0.f) });
-	auto* lightSpotCutoff = new CMFCPropertyGridProperty(_T("Light Spot Cutoff"), databaseNameToVariable["light_spot_cutoff"], _T("Spotlight cutoff value.")); // IDK what this would do. Spotlight angle?
+	databaseNameToProperty.insert({ "light_spot_cutoff", new CMFCPropertyGridProperty(_T("Light Spot Cutoff"), COleVariant(0.f), _T("Spotlight cutoff value.")) });
+	auto* lightSpotCutoff = databaseNameToProperty["light_spot_cutoff"]; // IDK what this would do. Spotlight angle?
 	lightGroup->AddSubItem(lightSpotCutoff);
 	
-	databaseNameToVariable.insert({ "light_constant", COleVariant(0.f) });
-	auto* lightConstant = new CMFCPropertyGridProperty(_T("Light Constant Falloff"), databaseNameToVariable["light_constant"], _T("Constant falloff of the light."));
+	databaseNameToProperty.insert({ "light_constant",  new CMFCPropertyGridProperty(_T("Light Constant Falloff"), COleVariant(0.f), _T("Constant falloff of the light.")) });
+	auto* lightConstant = databaseNameToProperty["light_constant"];
 	lightGroup->AddSubItem(lightConstant);
 
-	databaseNameToVariable.insert({ "light_linear", COleVariant(0.f) });
-	auto* lightLinear = new CMFCPropertyGridProperty(_T("Light Linear Falloff"), databaseNameToVariable["light_linear"], _T("Linear falloff of the light."));
+	databaseNameToProperty.insert({ "light_linear", new CMFCPropertyGridProperty(_T("Light Linear Falloff"), COleVariant(0.f), _T("Linear falloff of the light.")) });
+	auto* lightLinear = databaseNameToProperty["light_linear"];
 	lightGroup->AddSubItem(lightLinear);
 
-	databaseNameToVariable.insert({ "light_quadratic", COleVariant(0.f) });
-	auto* lightQuadratic = new CMFCPropertyGridProperty(_T("Light Quadratic Falloff"), databaseNameToVariable["light_quadratic"], _T("Quadratic falloff of the light."));
+	databaseNameToProperty.insert({ "light_quadratic", new CMFCPropertyGridProperty(_T("Light Quadratic Falloff"), COleVariant(0.f), _T("Quadratic falloff of the light.")) });
+	auto* lightQuadratic = databaseNameToProperty["light_quadratic"];
 	lightGroup->AddSubItem(lightQuadratic);
 	
 	propertiesGrid.AddProperty(lightGroup);
@@ -271,12 +295,83 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	propertiesGrid.PostMessage(WM_SIZE, 0, MAKELONG(rect.Width(), rect.Height()));
 }
 
+void ObjectPropertiesDialog::InitialisePropertyToDatabaseNameLookup()
+{
+	for (auto& kvp : databaseNameToProperty)
+	{
+		propertyToDatabaseName.insert({ kvp.second, kvp.first });
+	}
+}
+
 void ObjectPropertiesDialog::UpdateFieldsWithDataFromCurrentSceneObject()
 {
+	SetAllFieldsEnableState(false);
+
 	if (currentSceneObject == nullptr)
-		SetAllFieldsEnableState(true);
+		return;
+
+	nameEdit.SetWindowTextW(ConvertStringToCString(currentSceneObject->name)); // Silly conversion byt CString takes wchar.
 	
+	posXEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->posX).c_str()));
+	posYEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->posY).c_str()));
+	posZEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->posZ).c_str()));
+	
+	rotXEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->rotX).c_str()));
+	rotYEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->rotY).c_str()));
+	rotZEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->rotZ).c_str()));
+	
+	scaleXEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->scaX).c_str()));
+	scaleYEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->scaY).c_str()));
+	scaleZEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->scaZ).c_str()));
+
+	// In database field order, excluding name, position, rotation, and scale.
+	databaseNameToProperty["id"]->SetValue(COleVariant((long)currentSceneObject->ID));
+	databaseNameToProperty["chunk_id"]->SetValue(COleVariant((long)currentSceneObject->chunk_ID));
+	databaseNameToProperty["mesh"]->SetValue(COleVariant(ConvertStringToCString(currentSceneObject->model_path)));
+	databaseNameToProperty["tex_diffuse"]->SetValue(COleVariant(ConvertStringToCString(currentSceneObject->tex_diffuse_path)));
+	// pos, rot, sca would go here.
+	databaseNameToProperty["render"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->render), VT_BOOL));
+	databaseNameToProperty["collision"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->collision), VT_BOOL));
+	databaseNameToProperty["collision_mesh"]->SetValue(COleVariant(ConvertStringToCString(currentSceneObject->collision_mesh)));
+	databaseNameToProperty["collectable"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->collectable), VT_BOOL));
+	databaseNameToProperty["destructable"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->destructable), VT_BOOL));
+	databaseNameToProperty["health_amount"]->SetValue(COleVariant((long)currentSceneObject->health_amount));
+	databaseNameToProperty["editor_render"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_render), VT_BOOL));
+	databaseNameToProperty["editor_texture_vis"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_texture_vis), VT_BOOL));
+	databaseNameToProperty["editor_normals_vis"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_normals_vis), VT_BOOL));
+	databaseNameToProperty["editor_collision_vis"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_collision_vis), VT_BOOL));
+	databaseNameToProperty["editor_pivot_vis"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_pivot_vis), VT_BOOL));
+	databaseNameToProperty["pivot_x"]->SetValue(COleVariant(currentSceneObject->pivotX));
+	databaseNameToProperty["pivot_y"]->SetValue(COleVariant(currentSceneObject->pivotY));
+	databaseNameToProperty["pivot_z"]->SetValue(COleVariant(currentSceneObject->pivotZ));
+	databaseNameToProperty["snap_to_ground"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->snapToGround), VT_BOOL));
+	databaseNameToProperty["ai_node"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->AINode), VT_BOOL));
+	databaseNameToProperty["audio_file"]->SetValue(COleVariant(ConvertStringToCString(currentSceneObject->audio_path)));
+	databaseNameToProperty["volume"]->SetValue(COleVariant(currentSceneObject->volume));
+	databaseNameToProperty["pitch"]->SetValue(COleVariant(currentSceneObject->pitch));
+	databaseNameToProperty["pan"]->SetValue(COleVariant(currentSceneObject->pan));
+	databaseNameToProperty["one_shot"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->one_shot), VT_BOOL));
+	databaseNameToProperty["play_on_init"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->play_on_init), VT_BOOL));
+	databaseNameToProperty["play_in_editor"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->play_in_editor), VT_BOOL));
+	databaseNameToProperty["min_dist"]->SetValue(COleVariant((long)currentSceneObject->min_dist));
+	databaseNameToProperty["max_dist"]->SetValue(COleVariant((long)currentSceneObject->max_dist));
+	databaseNameToProperty["camera"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->camera), VT_BOOL));
+	databaseNameToProperty["path_node"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->path_node), VT_BOOL));
+	databaseNameToProperty["path_node_start"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->path_node_start), VT_BOOL));
+	databaseNameToProperty["path_node_end"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->path_node_end), VT_BOOL));
+	databaseNameToProperty["parent_id"]->SetValue(COleVariant((long)currentSceneObject->parent_id));
+	databaseNameToProperty["editor_wireframe"]->SetValue(COleVariant((short)ConvertBoolToVARIANTBOOL(currentSceneObject->editor_wireframe), VT_BOOL));
+	// name would go here
+	databaseNameToProperty["light_type"]->SetValue(COleVariant((long)currentSceneObject->light_type));
 	// Light diffuse + light specular handled differently!
+	dynamic_cast<CMFCPropertyGridColorProperty*>(databaseNameToProperty["light_diffuse"])->SetColor(RGB(currentSceneObject->light_diffuse_r, currentSceneObject->light_diffuse_g, currentSceneObject->light_diffuse_b));
+	dynamic_cast<CMFCPropertyGridColorProperty*>(databaseNameToProperty["light_specular"])->SetColor(RGB(currentSceneObject->light_specular_r, currentSceneObject->light_specular_g, currentSceneObject->light_specular_b));
+	databaseNameToProperty["light_spot_cutoff"]->SetValue(COleVariant(currentSceneObject->light_spot_cutoff));
+	databaseNameToProperty["light_constant"]->SetValue(COleVariant(currentSceneObject->light_constant));
+	databaseNameToProperty["light_linear"]->SetValue(COleVariant(currentSceneObject->light_linear));
+	databaseNameToProperty["light_quadratic"]->SetValue(COleVariant(currentSceneObject->light_quadratic));
+	
+	SetAllFieldsEnableState(true);
 }
 
 void ObjectPropertiesDialog::SetAllFieldsEnableState(bool state)
@@ -294,7 +389,7 @@ void ObjectPropertiesDialog::SetAllFieldsEnableState(bool state)
 	
 	for (auto i = 0; i < propertiesGrid.GetPropertyCount(); ++i)
 	{
-		auto currentProperty = propertiesGrid.GetProperty(i);
+		auto* currentProperty = propertiesGrid.GetProperty(i);
 
 		currentProperty->Enable(state);
 
@@ -302,7 +397,6 @@ void ObjectPropertiesDialog::SetAllFieldsEnableState(bool state)
 		{
 			currentProperty->GetSubItem(j)->Enable(state);
 		}
-
 	}
 }
 
@@ -315,9 +409,7 @@ void ObjectPropertiesDialog::SetCurrentSceneObject(SceneObject* sceneObject)
 
 void ObjectPropertiesDialog::ClearCurrentSceneObject()
 {
-	this->currentSceneObject = nullptr;
-
-	UpdateFieldsWithDataFromCurrentSceneObject();
+	SetCurrentSceneObject(nullptr);
 }
 
 
@@ -327,7 +419,13 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 {
 	OutputDebugStringW(L"Property box changed!");
 
+	// wparam = The control ID of the property list.
+	// lparam = A pointer to the property (CMFCPropertyGridProperty) that changed.
+
 	auto* currentProperty = reinterpret_cast<CMFCPropertyGridProperty*>(lParam);
+
+	//databaseNameToVariable["id"].lVal = 10;
+	//propertiesGrid.GetProperty(0)->SetValue(databaseNameToVariable["id"]);
 
 	// Get position database name
 
@@ -357,102 +455,23 @@ bool ObjectPropertiesDialog::VerifyContentsAreFloat(CEdit& field, float previous
 	}
 }
 
+CString ObjectPropertiesDialog::ConvertStringToCString(const std::string str) const
+{
+	return CString(std::string(str.begin(), str.end()).c_str());
+}
+
+VARIANT_BOOL ObjectPropertiesDialog::ConvertBoolToVARIANTBOOL(const bool b) const
+{
+	switch (b)
+	{
+		case true:
+			return VARIANT_TRUE;
+		case false:
+			return VARIANT_FALSE;
+	}
+}
+
 
 BEGIN_MESSAGE_MAP(ObjectPropertiesDialog, CDialogEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertiesGridPropertyUpdated)
-	ON_EN_UPDATE(IDC_POSXEDIT, &ObjectPropertiesDialog::OnEnUpdatePosxedit)
-	ON_EN_UPDATE(IDC_POSYEDIT, &ObjectPropertiesDialog::OnEnUpdatePosyedit)
-	ON_EN_UPDATE(IDC_POSZEDIT, &ObjectPropertiesDialog::OnEnUpdatePoszedit)
-	ON_EN_UPDATE(IDC_ROTXEDIT, &ObjectPropertiesDialog::OnEnUpdateRotxedit)
-	ON_EN_UPDATE(IDC_ROTZEDIT, &ObjectPropertiesDialog::OnEnUpdateRotzedit)
-	ON_EN_UPDATE(IDC_SCALEXEDIT, &ObjectPropertiesDialog::OnEnUpdateScalexedit)
-	ON_EN_UPDATE(IDC_SCALEYEDIT, &ObjectPropertiesDialog::OnEnUpdateScaleyedit)
-	ON_EN_UPDATE(IDC_SCALEZEDIT, &ObjectPropertiesDialog::OnEnUpdateScalezedit)
 END_MESSAGE_MAP()
-
-
-// ObjectPropertiesDialog message handlers
-
-
-void ObjectPropertiesDialog::OnEnUpdatePosxedit()
-{
-	/*float val = 2.f;
-	VerifyContentsAreFloat(posXEdit, 10.f, val);*/
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdatePosyedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdatePoszedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdateRotxedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdateRotzedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdateScalexedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdateScaleyedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
-
-
-void ObjectPropertiesDialog::OnEnUpdateScalezedit()
-{
-	// TODO:  If this is a RICHEDIT control, the control will not
-	// send this notification unless you override the CDialogEx::OnInitDialog()
-	// function to send the EM_SETEVENTMASK message to the control
-	// with the ENM_UPDATE flag ORed into the lParam mask.
-
-	// TODO:  Add your control notification handler code here
-}
