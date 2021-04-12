@@ -14,6 +14,8 @@
 #include <locale>
 #include <codecvt>
 
+#include "ToolMain.h"
+
 using namespace COleVariantHelpers;
 
 // ObjectPropertiesDialog dialog
@@ -23,11 +25,14 @@ IMPLEMENT_DYNAMIC(ObjectPropertiesDialog, CDialogEx)
 ObjectPropertiesDialog::ObjectPropertiesDialog(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_OBJECTPROPERTIESDIALOG, pParent)
 	, currentSceneObject(nullptr)
+	, toolMain(nullptr)
 {
 }
 
 ObjectPropertiesDialog::~ObjectPropertiesDialog()
 {
+	if (toolMain != nullptr)
+		toolMain->SetObjectPropertiesDialogReference(nullptr);
 }
 
 void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
@@ -76,6 +81,8 @@ BOOL ObjectPropertiesDialog::OnInitDialog()
 	
 	if (currentSceneObject == nullptr) 
 		SetAllFieldsEnableState(false);
+
+	toolMain->SetObjectPropertiesDialogReference(this);
 	
 	return true;
 }
@@ -159,8 +166,8 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	auto* editorTextureVis = databaseNameToProperty["editor_texture_vis"];
 	editorGroup->AddSubItem(editorTextureVis);
 
-	databaseNameToProperty.insert({ "editor_normal_vis", new CMFCPropertyGridProperty(_T("Normals Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });
-	auto* editorNormalsVis = databaseNameToProperty["editor_normal_vis"];
+	databaseNameToProperty.insert({ "editor_normals_vis", new CMFCPropertyGridProperty(_T("Normals Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });
+	auto* editorNormalsVis = databaseNameToProperty["editor_normals_vis"];
 	editorGroup->AddSubItem(editorNormalsVis);
 
 	databaseNameToProperty.insert({ "editor_collision_vis", new CMFCPropertyGridProperty(_T("Collisions Visible in Editor"), COleVariant((short)VARIANT_TRUE, VT_BOOL), _T("Whether the normals are visible in the editor.")) });

@@ -34,7 +34,10 @@ public:
 	// Rendering helpers
 	void Clear();
 
-	// Object Picking
+	/// <summary>
+	/// Returns the indices of the objects in the scene graph based on the distance away from where the moused clicked, sorted by distance ascending.
+	/// </summary>
+	/// <returns>Indices of the objects in the scene graph based on the distance away from where the mouse clicked, sorted by distance ascending</returns>
 	std::vector<std::pair<float, int>> MousePicking();
 	
 	// IDeviceNotify

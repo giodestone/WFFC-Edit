@@ -8,6 +8,8 @@
 #include "InputCommands.h"
 #include <vector>
 
+#include "ObjectPropertiesDialog.h"
+
 
 class ToolMain
 {
@@ -25,11 +27,13 @@ public: //methods
 
 	void	Tick(MSG *msg);
 	void	UpdateInput(MSG *msg);
+	void SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog);
 
 public:	//variables
 	std::vector<SceneObject>    m_sceneGraph;	//our scenegraph storing all the objects in the current chunk
 	ChunkObject					m_chunk;		//our landscape chunk
 	int m_selectedObject;						//ID of current Selection
+	ObjectPropertiesDialog* objectPropertiesDialog;
 
 private:	//methods
 	void OnContentAdded();

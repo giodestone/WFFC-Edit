@@ -358,12 +358,22 @@ void ToolMain::UpdateInput(MSG * msg)
 	//WASD
 }
 
+void ToolMain::SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog)
+{
+	this->objectPropertiesDialog = objectPropertiesDialog;
+}
+
 void ToolMain::OnMouseClicked()
 {
 	m_toolInputCommands.mouseLMBDown = true;
 	
 	auto pickedObjects = m_d3dRenderer.MousePicking();
 	m_selectedObject = pickedObjects.empty() ? -1 : pickedObjects.at(0).second;
+
+	if (objectPropertiesDialog != nullptr && m_selectedObject != -1)
+		objectPropertiesDialog->SetCurrentSceneObject(&m_sceneGraph.at(m_selectedObject));
+	else if (objectPropertiesDialog != nullptr)
+		objectPropertiesDialog->ClearCurrentSceneObject();
 }
 
 void ToolMain::OnMouseUp()

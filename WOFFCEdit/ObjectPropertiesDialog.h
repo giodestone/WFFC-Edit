@@ -24,6 +24,8 @@ public:
 #endif
 
 protected:
+	class ToolMain* toolMain;
+	
 	CEdit nameEdit;
 	CEdit posXEdit;
 	CEdit posYEdit;
@@ -79,6 +81,16 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+
+	/// <summary>
+	/// Setup reference to ToolMain, must be set up otherwise picking won't work.
+	/// </summary>
+	/// <param name="toolMain"></param>
+	void SetReferenceToToolMain(class ToolMain* toolMain)
+	{
+		this->toolMain = toolMain;
+	}
+
 	/// <summary>
 	/// Update the scene object's properties that should be displayed by the ObjectPropertiesDialog.
 	/// </summary>
