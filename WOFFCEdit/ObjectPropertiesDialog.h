@@ -49,10 +49,13 @@ protected:
 	virtual BOOL OnInitDialog() override;
 	
 	/// <summary>
-	/// Create the property grid (as adding through editor doesn't work) and populate it with values.
+	/// Add properties to propertiesGrid based on elements of SceneObject.
 	/// </summary>
 	void InitialisePropertyGrid();
 
+	/// <summary>
+	/// Initialise propertyToDatabaseName lookup. Must be called after populating databaseNameToProperty via InitialisePropertyGrid().
+	/// </summary>
 	void InitialisePropertyToDatabaseNameLookup();
 
 	void UpdateFieldsWithDataFromCurrentSceneObject();
@@ -68,14 +71,10 @@ protected:
 	bool VerifyContentsAreFloat(CEdit& field, float previousValue, float& outValue);
 
 	/// <summary>
-	/// Convert a std::string to CString by also converting it to a std::wstring in between.
+	/// Event callback for when propertiesGrid property is updated. Called by MFC. Updates the changes onto the object that is being modified.
 	/// </summary>
-	/// <param name="str"></param>
-	/// <returns></returns>
-	CString ConvertStringToCString(const std::string str) const;
-
-	VARIANT_BOOL ConvertBoolToVARIANTBOOL(const bool b) const;
-
+	/// <param name="wParam">The control ID of the property list.</param>
+	/// <param name="lParam">A pointer to the property (CMFCPropertyGridProperty) that changed.</param>
 	afx_msg LRESULT OnPropertiesGridPropertyUpdated(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()

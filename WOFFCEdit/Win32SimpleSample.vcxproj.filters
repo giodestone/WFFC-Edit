@@ -110,6 +110,7 @@
       <Filter>MFC</Filter>
     </ClInclude>
     <ClInclude Include="ObjectPropertiesDialog.h" />
+    <ClInclude Include="COleVariantHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
