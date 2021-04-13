@@ -311,7 +311,7 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	case WM_LBUTTONDOWN:
-		OnMouseClicked();
+		OnMouseDown();
 		break;
 
 	case WM_LBUTTONUP:
@@ -363,20 +363,16 @@ void ToolMain::SetObjectPropertiesDialogReference(ObjectPropertiesDialog* object
 	this->objectPropertiesDialog = objectPropertiesDialog;
 }
 
-void ToolMain::OnMouseClicked()
+void ToolMain::OnMouseDown()
 {
 	m_toolInputCommands.mouseLMBDown = true;
 	
-	auto pickedObjects = m_d3dRenderer.MousePicking();
-	m_selectedObject = pickedObjects.empty() ? -1 : pickedObjects.at(0).second;
-
-	if (objectPropertiesDialog != nullptr && m_selectedObject != -1)
-		objectPropertiesDialog->SetCurrentSceneObject(&m_sceneGraph.at(m_selectedObject));
-	else if (objectPropertiesDialog != nullptr)
-		objectPropertiesDialog->ClearCurrentSceneObject();
+	m_camera.OnMouseDown();
 }
 
 void ToolMain::OnMouseUp()
 {
 	m_toolInputCommands.mouseLMBDown = false;
+
+	m_camera.OnMouseUp();
 }

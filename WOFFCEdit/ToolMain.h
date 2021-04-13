@@ -7,6 +7,7 @@
 #include "SceneObject.h"
 #include "InputCommands.h"
 #include <vector>
+#include "Camera.h"
 
 #include "ObjectPropertiesDialog.h"
 
@@ -38,7 +39,7 @@ public:	//variables
 private:	//methods
 	void OnContentAdded();
 
-	void OnMouseClicked();
+	void OnMouseDown();
 	void OnMouseUp();
 
 
@@ -46,6 +47,7 @@ private:	//methods
 private:	//variables
 	HWND	m_toolHandle;		//Handle to the  window
 	Game	m_d3dRenderer;		//Instance of D3D rendering system for our tool
+	Camera m_camera;
 	InputCommands m_toolInputCommands;		//input commands that we want to use and possibly pass over to the renderer
 	CRect	WindowRECT;		//Window area rectangle. 
 	char	m_keyArray[256];

@@ -7,6 +7,7 @@ BEGIN_MESSAGE_MAP(CMyFrame, CFrameWnd)
 	
 	ON_WM_CREATE()
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TOOL, &CMyFrame::OnUpdatePage)
+	ON_WM_ACTIVATE(&OnActivate)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -34,6 +35,37 @@ void CMyFrame::OnUpdatePage(CCmdUI * pCmdUI)
 	CString strPage;
 	strPage.Format(_T("%d"), m_selectionID);
 	pCmdUI->SetText(strPage);
+}
+
+void CMyFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
+{
+	OutputDebugStringW(L"MFCFrame active changed...\n");
+	OutputDebugStringW(L"This Window hWnd: ");
+	OutputDebugStringW(std::to_wstring((long)m_hWnd).c_str());
+	OutputDebugStringW(L"\n");
+	OutputDebugStringW(L"Other Window hWnd: ");
+	if (pWndOther == nullptr)
+		OutputDebugStringW(L"nullptr");
+	else
+		OutputDebugStringW(std::to_wstring((long)pWndOther->m_hWnd).c_str());
+	OutputDebugStringW(L"\n");
+	OutputDebugStringW(L"Command: ");
+	switch (nState)
+	{
+	case WA_ACTIVE:
+		OutputDebugStringW(L"WA_ACTIVE");
+		break;
+	case WA_CLICKACTIVE:
+		OutputDebugStringW(L"WA_CLICKALIVE");
+		break;
+	case WA_INACTIVE:
+		OutputDebugStringW(L"WA_INACTIVE");
+		break;
+	}
+
+	// on active or clickalive mark as focused on main pane; on inactive mark as inactive.
+	
+	OutputDebugStringW(L"\n\n\n");
 }
 
 //oncretae, called after init but before window is shown. 

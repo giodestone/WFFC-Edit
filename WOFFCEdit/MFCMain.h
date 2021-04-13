@@ -32,6 +32,8 @@ private:
 
 	int m_width;		
 	int m_height;
+
+	afx_msg void OnActivate(WPARAM wParam, LPARAM lParam);
 	
 	//Interface funtions for menu and toolbar etc requires
 	afx_msg void MenuFileQuit();

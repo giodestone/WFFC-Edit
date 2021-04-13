@@ -22,6 +22,7 @@ public:
 	CMyFrame();
 	void SetCurrentSelectionID(int ID);
 	afx_msg void OnUpdatePage(CCmdUI *pCmdUI);
+	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 
 
 private:	//overrides

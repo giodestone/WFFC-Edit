@@ -7,10 +7,10 @@
 
 
 BEGIN_MESSAGE_MAP(MFCMain, CWinApp)
-	ON_COMMAND(ID_FILE_QUIT,	&MFCMain::MenuFileQuit)
+	ON_COMMAND(ID_FILE_QUIT, &MFCMain::MenuFileQuit)
 	ON_COMMAND(ID_FILE_SAVETERRAIN, &MFCMain::MenuFileSaveTerrain)
 	ON_COMMAND(ID_EDIT_SELECT, &MFCMain::MenuEditSelect)
-	ON_COMMAND(ID_BUTTON40001,	&MFCMain::ToolBarButton1)
+	ON_COMMAND(ID_BUTTON40001, &MFCMain::ToolBarButton1)
 	ON_COMMAND(ID_WINDOW_SHOWOBJECTPROPERTIES, &MFCMain::ShowObjectProperties)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TOOL, &CMyFrame::OnUpdatePage)
 END_MESSAGE_MAP()
@@ -67,7 +67,7 @@ BOOL MFCMain::InitInstance()
 	m_height	= WindowRECT.Height();
 
 	m_ToolSystem.onActionInitialise(m_toolHandle, m_width, m_height);
-
+	
 	return TRUE;
 }
 
@@ -108,6 +108,12 @@ int MFCMain::Run()
 	}
 
 	return (int)msg.wParam;
+}
+
+void MFCMain::OnActivate(WPARAM wParam, LPARAM lParam)
+{                      
+	
+
 }
 
 void MFCMain::MenuFileQuit()
