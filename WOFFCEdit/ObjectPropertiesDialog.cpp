@@ -26,6 +26,7 @@ ObjectPropertiesDialog::ObjectPropertiesDialog(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_OBJECTPROPERTIESDIALOG, pParent)
 	, currentSceneObject(nullptr)
 	, toolMain(nullptr)
+	, isUpdatingFieldsFromCurrentlySelectedObject(false)
 {
 }
 
@@ -38,7 +39,6 @@ ObjectPropertiesDialog::~ObjectPropertiesDialog()
 void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	//DDX_Control(pDX, WM_USER + 100, *propertiesGrid);
 	DDX_Control(pDX, IDC_NAMEEDIT, nameEdit);
 	DDX_Control(pDX, IDC_POSXEDIT, posXEdit);
 	DDX_Control(pDX, IDC_POSYEDIT, posYEdit);
@@ -60,7 +60,7 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 		DDX_Text(pDX, IDC_POSXEDIT, currentSceneObject->posX);
 		DDX_Text(pDX, IDC_POSYEDIT, currentSceneObject->posY);
 		DDX_Text(pDX, IDC_POSZEDIT, currentSceneObject->posZ);
-		
+
 		DDX_Text(pDX, IDC_ROTXEDIT, currentSceneObject->rotX);
 		DDX_Text(pDX, IDC_rotyedit, currentSceneObject->rotY);
 		DDX_Text(pDX, IDC_ROTZEDIT, currentSceneObject->rotZ);
@@ -77,13 +77,30 @@ BOOL ObjectPropertiesDialog::OnInitDialog()
 	
 	InitialisePropertyGrid();
 	InitialisePropertyToDatabaseNameLookup();
+	InitialiseFloatEdits();
 	
 	if (currentSceneObject == nullptr) 
 		SetAllFieldsEnableState(false);
 
 	toolMain->SetObjectPropertiesDialogReference(this);
+
 	
 	return true;
+}
+
+void ObjectPropertiesDialog::InitialiseFloatEdits()
+{
+	posXEdit.SetOwner(this);
+	posYEdit.SetOwner(this);
+	posZEdit.SetOwner(this);
+
+	rotXEdit.SetOwner(this);
+	rotYEdit.SetOwner(this);
+	rotZEdit.SetOwner(this);
+
+	scaleXEdit.SetOwner(this);
+	scaleYEdit.SetOwner(this);
+	scaleZEdit.SetOwner(this);
 }
 
 void ObjectPropertiesDialog::InitialisePropertyGrid()
@@ -326,6 +343,8 @@ void ObjectPropertiesDialog::UpdateFieldsWithDataFromCurrentSceneObject()
 	if (currentSceneObject == nullptr)
 		return;
 
+	isUpdatingFieldsFromCurrentlySelectedObject = true;
+
 	nameEdit.SetWindowTextW(StringToCString(currentSceneObject->name)); // Silly conversion byt CString takes wchar.
 	
 	posXEdit.SetWindowTextW(CString(std::to_wstring(currentSceneObject->posX).c_str()));
@@ -386,6 +405,8 @@ void ObjectPropertiesDialog::UpdateFieldsWithDataFromCurrentSceneObject()
 	databaseNameToProperty["light_constant"]->SetValue(COleVariant(currentSceneObject->light_constant));
 	databaseNameToProperty["light_linear"]->SetValue(COleVariant(currentSceneObject->light_linear));
 	databaseNameToProperty["light_quadratic"]->SetValue(COleVariant(currentSceneObject->light_quadratic));
+
+	isUpdatingFieldsFromCurrentlySelectedObject = false;
 	
 	SetAllFieldsEnableState(true);
 }
@@ -538,11 +559,17 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 	return 0;
 }
 
+LRESULT ObjectPropertiesDialog::OnControlChanged(WPARAM wParam, LPARAM lParam)
+{
+
+	return 0;
+}
+
 bool ObjectPropertiesDialog::VerifyContentsAreFloat(CEdit& field, float previousValue, float& outValue)
 {
 	CString contents;
 	field.GetWindowTextW(contents);
-	
+
 	try
 	{
 		const float finalValue = std::stof(static_cast<LPCTSTR>(contents));
@@ -559,4 +586,18 @@ bool ObjectPropertiesDialog::VerifyContentsAreFloat(CEdit& field, float previous
 
 BEGIN_MESSAGE_MAP(ObjectPropertiesDialog, CDialogEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertiesGridPropertyUpdated)
+	ON_EN_CHANGE(IDC_NAMEEDIT, &ObjectPropertiesDialog::OnChangeOrUpdateNameEdit)
+	ON_EN_UPDATE(IDC_NAMEEDIT, &ObjectPropertiesDialog::OnChangeOrUpdateNameEdit)
 END_MESSAGE_MAP()
+
+
+void ObjectPropertiesDialog::OnChangeOrUpdateNameEdit()
+{
+	if (currentSceneObject == nullptr)
+		return;
+	
+	CString contents;
+	nameEdit.GetWindowTextW(contents);
+
+	currentSceneObject->name = CStringToString(contents);
+}

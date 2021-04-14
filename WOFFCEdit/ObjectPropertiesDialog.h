@@ -6,6 +6,7 @@
 
 
 #include "SceneObject.h"
+#include "CFloatEdit.h"
 
 
 // ObjectPropertiesDialog dialog
@@ -27,18 +28,17 @@ protected:
 	class ToolMain* toolMain;
 	
 	CEdit nameEdit;
-	CEdit posXEdit;
-	CEdit posYEdit;
-	CEdit posZEdit;
-	CEdit rotXEdit;
-	CEdit rotYEdit;
-	CEdit rotZEdit;
-	CEdit scaleXEdit;
-	CEdit scaleYEdit;
-	CEdit scaleZEdit;
+	CFloatEdit posXEdit;
+	CFloatEdit posYEdit;
+	CFloatEdit posZEdit;
+	CFloatEdit rotXEdit;
+	CFloatEdit rotYEdit;
+	CFloatEdit rotZEdit;
+	CFloatEdit scaleXEdit;
+	CFloatEdit scaleYEdit;
+	CFloatEdit scaleZEdit;
 
-	float testFloat;
-	std::wstring testString;
+	bool isUpdatingFieldsFromCurrentlySelectedObject;
 
 	std::unordered_map<std::string, CMFCPropertyGridProperty*> databaseNameToProperty;
 	std::unordered_map<CMFCPropertyGridProperty*, std::string> propertyToDatabaseName;
@@ -49,6 +49,8 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	virtual BOOL OnInitDialog() override;
+
+	void InitialiseFloatEdits();
 	
 	/// <summary>
 	/// Add properties to propertiesGrid based on elements of SceneObject.
@@ -79,6 +81,8 @@ protected:
 	/// <param name="lParam">A pointer to the property (CMFCPropertyGridProperty) that changed.</param>
 	afx_msg LRESULT OnPropertiesGridPropertyUpdated(WPARAM wParam, LPARAM lParam);
 
+	LRESULT OnControlChanged(WPARAM wParam, LPARAM lParam);
+
 	DECLARE_MESSAGE_MAP()
 public:
 
@@ -102,4 +106,5 @@ public:
 	/// </summary>
 	void ClearCurrentSceneObject();
 	CMFCPropertyGridCtrl propertiesGrid;
+	afx_msg void OnChangeOrUpdateNameEdit();
 };

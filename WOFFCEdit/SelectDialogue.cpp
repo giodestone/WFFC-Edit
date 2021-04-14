@@ -46,7 +46,7 @@ void SelectDialogue::Select()
 	m_listBox.GetText(index, currentSelectionValue);
 
 	auto currentSelection = _ttoi(currentSelectionValue);
-	ToolMain::GetInstance()->GetCamera().SetCurrentlySelected(currentSelection);
+	ToolMain::GetInstance()->GetSelection().SetCurrentlySelected(currentSelection);
 }
 
 BOOL SelectDialogue::OnInitDialog()

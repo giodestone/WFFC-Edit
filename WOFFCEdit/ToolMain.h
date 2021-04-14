@@ -7,7 +7,7 @@
 #include "SceneObject.h"
 #include "InputCommands.h"
 #include <vector>
-#include "Camera.h"
+#include "Selection.h"
 
 #include "ObjectPropertiesDialog.h"
 
@@ -18,7 +18,7 @@ class ToolMain
 	static bool isInitialised;
 	
 	Game d3dRenderer; //Instance of D3D rendering system for our tool
-	Camera camera;
+	Selection selection;
 	InputCommands toolInputCommands; //input commands that we want to use and possibly pass over to the renderer
 	CRect windowRect; //Window area rectangle. 
 	char keyArray[256];
@@ -56,10 +56,10 @@ public:
 	// Properties
 
 	/// <summary>
-	/// Get a reference to the camera.
+	/// Get a reference to the selection.
 	/// </summary>
-	/// <returns>The camera object.</returns>
-	Camera& GetCamera() { return camera; }
+	/// <returns>The selection object.</returns>
+	Selection& GetSelection() { return selection; }
 
 	/// <summary>
 	/// Get a reference to the renderer.
@@ -79,6 +79,12 @@ public:
 	/// <returns>-1 if nothing is selected; the index of the item in the Scene Graph.</returns>
 	/// <seealso cref="Camera::GetClosestCurrentlySelectedIndex"/>
 	int	GetClosestCurrentlySelectedIndex();
+
+	/// <summary>
+	/// Get object properties dialog.
+	/// </summary>
+	/// <returns>nullptr if not set; reference to the object if it is.</returns>
+	ObjectPropertiesDialog* GetObjectPropertiesDialog() { return objectPropertiesDialog; }
 
 	/// <summary>
 	/// Set reference to the object properties dialog.

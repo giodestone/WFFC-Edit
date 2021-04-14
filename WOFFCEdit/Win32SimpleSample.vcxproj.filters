@@ -60,7 +60,8 @@
       <Filter>MFC</Filter>
     </ClCompile>
     <ClCompile Include="ObjectPropertiesDialog.cpp" />
-    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Selection.cpp" />
+    <ClCompile Include="CFloatEdit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeviceResources.h">
@@ -112,7 +113,8 @@
     </ClInclude>
     <ClInclude Include="ObjectPropertiesDialog.h" />
     <ClInclude Include="COleVariantHelpers.h" />
-    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Selection.h" />
+    <ClInclude Include="CFloatEdit.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

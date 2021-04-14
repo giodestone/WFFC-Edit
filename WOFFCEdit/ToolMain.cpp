@@ -48,7 +48,7 @@ bool ToolMain::IsInitialised()
 
 int ToolMain::GetClosestCurrentlySelectedIndex()
 {
-	return camera.GetClosestCurrentlySelectedIndex();
+	return selection.GetClosestCurrentlySelectedIndex();
 }
 
 void ToolMain::OnActionInitialise(HWND handle, int width, int height)
@@ -75,7 +75,7 @@ void ToolMain::OnActionInitialise(HWND handle, int width, int height)
 
 	OnActionLoad();
 
-	camera.OnInitialise(this);
+	selection.OnInitialise(this);
 
 	isInitialised = true;
 }
@@ -385,26 +385,22 @@ void ToolMain::OnMouseDown()
 {
 	toolInputCommands.mouseLMBDown = true;
 	
-	camera.OnMouseDown();
-
-	// This gets set too often! needs to be only done once when an object is selected if possible. Should probably merge the selection to the 
-	if (objectPropertiesDialog != nullptr)
-		objectPropertiesDialog->SetCurrentSceneObject(camera.GetNearestSelectedSceneObject());
+	selection.OnMouseDown();
 }
 
 void ToolMain::OnMouseUp()
 {
 	toolInputCommands.mouseLMBDown = false;
 
-	camera.OnMouseUp();
+	selection.OnMouseUp();
 }
 
 void ToolMain::OnMainWindowLostFocus()
 {
-	camera.OnLostFocus();
+	selection.OnLostFocus();
 }
 
 void ToolMain::OnMainWindowRegainFocus()
 {
-	camera.OnRegainFocus();
+	selection.OnRegainFocus();
 }
