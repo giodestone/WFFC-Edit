@@ -1,58 +1,18 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Win32SimpleSample.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  MFCFrame.cpp
+  Camera.cpp
   _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\mfcframe.cpp(10): warning C4002: too many arguments for function-like macro invocation 'ON_WM_ACTIVATE'
-  MFCMain.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-  Main.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-  ObjectPropertiesDialog.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\colevarianthelpers.h(59): warning C4809: switch statement has redundant 'default' label; all possible 'case' labels are given
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-  SelectDialogue.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-  Selection.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-  ToolMain.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(30): warning C4005: 'IDC_STATIC': macro redefinition
-  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.16.27023\atlmfc\include\afxres.h(343): note: see previous definition of 'IDC_STATIC'
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(112): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(113): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(114): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(115): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(116): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(117): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(118): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(119): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(120): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(132): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(133): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(134): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(138): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(139): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(140): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(144): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(145): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(155): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(156): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(157): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(158): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(159): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(160): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(161): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(162): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(163): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\toolmain.cpp(164): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-  Generating Code...
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(35): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(42): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(43): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(51): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(52): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(60): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(61): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(65): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(69): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(75): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(79): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(84): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(88): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
   Win32SimpleSample.vcxproj -> C:\Users\Feliks\Documents\University\CMP405\WFFC-Edit\WOFFCEdit\Debug\WoFEdit.exe

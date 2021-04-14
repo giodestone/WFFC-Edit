@@ -165,6 +165,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CFloatEdit.cpp" />
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="ChunkObject.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="ToolMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CFloatEdit.h" />
     <ClInclude Include="Selection.h" />
     <ClInclude Include="ChunkObject.h" />

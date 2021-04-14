@@ -6,8 +6,13 @@ struct InputCommands
 	bool back;
 	bool right;
 	bool left;
+	bool up;
+	bool down;
+	
 	bool rotRight;
 	bool rotLeft;
+	bool rotUp;
+	bool rotDown;
 
 	int mouseX = 0;
 	int mouseY = 0;

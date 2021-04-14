@@ -56,6 +56,11 @@ public:
 	// Properties
 
 	/// <summary>
+	/// Get input commands.
+	/// </summary>
+	InputCommands& GetInputCommands() { return toolInputCommands; }
+	
+	/// <summary>
 	/// Get a reference to the selection.
 	/// </summary>
 	/// <returns>The selection object.</returns>

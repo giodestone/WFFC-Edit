@@ -26,6 +26,8 @@ public:
 
 protected:
 	class ToolMain* toolMain;
+
+	CMFCPropertyGridCtrl propertiesGrid;
 	
 	CEdit nameEdit;
 	CFloatEdit posXEdit;
@@ -81,8 +83,6 @@ protected:
 	/// <param name="lParam">A pointer to the property (CMFCPropertyGridProperty) that changed.</param>
 	afx_msg LRESULT OnPropertiesGridPropertyUpdated(WPARAM wParam, LPARAM lParam);
 
-	LRESULT OnControlChanged(WPARAM wParam, LPARAM lParam);
-
 	DECLARE_MESSAGE_MAP()
 public:
 
@@ -105,6 +105,6 @@ public:
 	/// Clear the current selection and update the properties box to be disabled.
 	/// </summary>
 	void ClearCurrentSceneObject();
-	CMFCPropertyGridCtrl propertiesGrid;
+
 	afx_msg void OnChangeOrUpdateNameEdit();
 };

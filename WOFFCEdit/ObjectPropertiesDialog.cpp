@@ -555,13 +555,6 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 	else if (propertyToDatabaseName[currentProperty] == "light_quadratic")
 		currentSceneObject->light_quadratic = currentProperty->GetValue().fltVal;
 	
-	
-	return 0;
-}
-
-LRESULT ObjectPropertiesDialog::OnControlChanged(WPARAM wParam, LPARAM lParam)
-{
-
 	return 0;
 }
 
@@ -593,7 +586,7 @@ END_MESSAGE_MAP()
 
 void ObjectPropertiesDialog::OnChangeOrUpdateNameEdit()
 {
-	if (currentSceneObject == nullptr)
+	if (currentSceneObject == nullptr || isUpdatingFieldsFromCurrentlySelectedObject)
 		return;
 	
 	CString contents;
