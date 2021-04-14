@@ -16,6 +16,7 @@ class ToolMain
 {
 	static ToolMain* instance;
 	static bool isInitialised;
+
 	
 	Game d3dRenderer; //Instance of D3D rendering system for our tool
 	Selection selection;
@@ -35,6 +36,8 @@ class ToolMain
 	int selectedObject;	//ID of current Selection
 
 	HWND mainWindowHwnd;
+
+	bool isFocused;
 	
 
 	// Methods

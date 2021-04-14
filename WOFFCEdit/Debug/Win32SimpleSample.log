@@ -1,18 +1,3 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Win32SimpleSample.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  Camera.cpp
-  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(35): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(42): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(43): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(51): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(52): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(60): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(61): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(65): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(69): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(75): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(79): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(84): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(88): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+  Game.cpp
   Win32SimpleSample.vcxproj -> C:\Users\Feliks\Documents\University\CMP405\WFFC-Edit\WOFFCEdit\Debug\WoFEdit.exe

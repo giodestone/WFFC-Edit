@@ -77,11 +77,11 @@ void Camera::UpdatePositionAndRotation(DX::StepTimer const& timer)
 	}
 	if (inputCommands.rotUp)
 	{
-		rotation.z += camRotRate * static_cast<float>(timer.GetElapsedSeconds());
+		rotation.x += camRotRate * static_cast<float>(timer.GetElapsedSeconds());
 	}
 	if (inputCommands.rotDown)
 	{
-		rotation.z -= camRotRate * static_cast<float>(timer.GetElapsedSeconds());
+		rotation.x -= camRotRate * static_cast<float>(timer.GetElapsedSeconds());
 	}
 }
 

@@ -10,6 +10,7 @@ bool ToolMain::isInitialised = false;
 //
 //ToolMain Class
 ToolMain::ToolMain()
+	: isFocused(true)
 {
 	ASSERT(instance == nullptr);
 	instance = this;
@@ -26,6 +27,13 @@ ToolMain::ToolMain()
 	toolInputCommands.back		= false;
 	toolInputCommands.left		= false;
 	toolInputCommands.right		= false;
+	toolInputCommands.up = false;
+	toolInputCommands.down = false;
+
+	toolInputCommands.rotUp = false;
+	toolInputCommands.rotDown = false;
+	toolInputCommands.rotLeft = false;
+	toolInputCommands.rotRight = false;
 }
 
 
@@ -345,7 +353,7 @@ void ToolMain::UpdateInput(MSG * msg)
 }
 
 void ToolMain::UpdateInputCommands()
-{
+{	
 	if (keyArray['W'])
 	{
 		toolInputCommands.forward = true;
@@ -362,12 +370,22 @@ void ToolMain::UpdateInputCommands()
 		toolInputCommands.left = true;
 	}
 	else toolInputCommands.left = false;
-
 	if (keyArray['D'])
 	{
 		toolInputCommands.right = true;
 	}
 	else toolInputCommands.right = false;
+	if (keyArray['R'])
+	{
+		toolInputCommands.up = true;
+	}
+	else toolInputCommands.up = false;
+	if (keyArray['F'])
+	{
+		toolInputCommands.down = true;
+	}
+	else toolInputCommands.down = false;
+
 	//rotation
 	if (keyArray['E'])
 	{
@@ -379,6 +397,16 @@ void ToolMain::UpdateInputCommands()
 		toolInputCommands.rotLeft = true;
 	}
 	else toolInputCommands.rotLeft = false;
+	if (keyArray['Z'])
+	{
+		toolInputCommands.rotUp = true;
+	}
+	else toolInputCommands.rotUp = false;
+	if (keyArray['X'])
+	{
+		toolInputCommands.rotDown = true;
+	}
+	else toolInputCommands.rotDown = false;
 }
 
 void ToolMain::OnMouseDown()
@@ -397,10 +425,12 @@ void ToolMain::OnMouseUp()
 
 void ToolMain::OnMainWindowLostFocus()
 {
+	isFocused = false;
 	selection.OnLostFocus();
 }
 
 void ToolMain::OnMainWindowRegainFocus()
 {
+	isFocused = true;
 	selection.OnRegainFocus();
 }
