@@ -2,49 +2,66 @@
 #include "resource.h"
 #include <vector>
 #include <sstream>
+#include "MFCFrame.h"
+
+ToolMain* ToolMain::instance = nullptr;
+bool ToolMain::isInitialised = false;
 
 //
 //ToolMain Class
 ToolMain::ToolMain()
 {
+	ASSERT(instance == nullptr);
+	instance = this;
 
-	m_currentChunk = 0;		//default value
-	m_selectedObject = 0;	//initial selection ID
-	m_sceneGraph.clear();	//clear the vector for the scenegraph
-	m_databaseConnection = NULL;
+	isInitialised = false;
+	
+	currentChunk = 0;		//default value
+	selectedObject = 0;	//initial selection ID
+	sceneGraph.clear();	//clear the vector for the scenegraph
+	databaseConnection = NULL;
 
 	//zero input commands
-	m_toolInputCommands.forward		= false;
-	m_toolInputCommands.back		= false;
-	m_toolInputCommands.left		= false;
-	m_toolInputCommands.right		= false;
-	
+	toolInputCommands.forward		= false;
+	toolInputCommands.back		= false;
+	toolInputCommands.left		= false;
+	toolInputCommands.right		= false;
 }
 
 
 ToolMain::~ToolMain()
 {
-	sqlite3_close(m_databaseConnection);		//close the database connection
+	sqlite3_close(databaseConnection);		//close the database connection
+}
+
+ToolMain* ToolMain::GetInstance()
+{
+	ASSERT(isInitialised);
+	return instance;
+}
+
+bool ToolMain::IsInitialised()
+{
+	return isInitialised;
 }
 
 
-int ToolMain::getCurrentSelectionID()
+int ToolMain::GetClosestCurrentlySelectedIndex()
 {
-
-	return m_selectedObject;
+	return camera.GetClosestCurrentlySelectedIndex();
 }
 
-void ToolMain::onActionInitialise(HWND handle, int width, int height)
-{
+void ToolMain::OnActionInitialise(HWND handle, int width, int height)
+{	
 	//window size, handle etc for directX
-	m_width		= width;
-	m_height	= height;
+	width = width;
+	height = height;
 	
-	m_d3dRenderer.Initialize(handle, m_width, m_height);
+	d3dRenderer.Initialize(handle, width, height);
 
 	//database connection establish
 	int rc;
-	rc = sqlite3_open_v2("database/test.db",&m_databaseConnection, SQLITE_OPEN_READWRITE, NULL);
+	rc = sqlite3_open_v2("database/test.db",&databaseConnection, SQLITE_OPEN_READWRITE, NULL);
 
 	if (rc) 
 	{
@@ -56,15 +73,19 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 		TRACE("Opened database successfully");
 	}
 
-	onActionLoad();
+	OnActionLoad();
+
+	camera.OnInitialise(this);
+
+	isInitialised = true;
 }
 
-void ToolMain::onActionLoad()
+void ToolMain::OnActionLoad()
 {
 	//load current chunk and objects into lists
-	if (!m_sceneGraph.empty())		//is the vector empty
+	if (!sceneGraph.empty())		//is the vector empty
 	{
-		m_sceneGraph.clear();		//if not, empty it
+		sceneGraph.clear();		//if not, empty it
 	}
 
 	//SQL
@@ -78,7 +99,7 @@ void ToolMain::onActionLoad()
 	//prepare SQL Text
 	sqlCommand = "SELECT * from Objects";				//sql command which will return all records from the objects table.
 	//Send Command and fill result object
-	rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResults, 0 );
+	rc = sqlite3_prepare_v2(databaseConnection, sqlCommand, -1, &pResults, 0 );
 	
 	//loop for each row in results until there are no more rows.  ie for every row in the results. We create and object
 	while (sqlite3_step(pResults) == SQLITE_ROW)
@@ -144,46 +165,46 @@ void ToolMain::onActionLoad()
 	
 
 		//send completed object to scenegraph
-		m_sceneGraph.push_back(newSceneObject);
+		sceneGraph.push_back(newSceneObject);
 	}
 
 	//THE WORLD CHUNK
 	//prepare SQL Text
 	sqlCommand = "SELECT * from Chunks";				//sql command which will return all records from  chunks table. There is only one tho.
 														//Send Command and fill result object
-	rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResultsChunk, 0);
+	rc = sqlite3_prepare_v2(databaseConnection, sqlCommand, -1, &pResultsChunk, 0);
 
 
 	sqlite3_step(pResultsChunk);
-	m_chunk.ID = sqlite3_column_int(pResultsChunk, 0);
-	m_chunk.name = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 1));
-	m_chunk.chunk_x_size_metres = sqlite3_column_int(pResultsChunk, 2);
-	m_chunk.chunk_y_size_metres = sqlite3_column_int(pResultsChunk, 3);
-	m_chunk.chunk_base_resolution = sqlite3_column_int(pResultsChunk, 4);
-	m_chunk.heightmap_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 5));
-	m_chunk.tex_diffuse_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 6));
-	m_chunk.tex_splat_alpha_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 7));
-	m_chunk.tex_splat_1_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 8));
-	m_chunk.tex_splat_2_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 9));
-	m_chunk.tex_splat_3_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 10));
-	m_chunk.tex_splat_4_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 11));
-	m_chunk.render_wireframe = sqlite3_column_int(pResultsChunk, 12);
-	m_chunk.render_normals = sqlite3_column_int(pResultsChunk, 13);
-	m_chunk.tex_diffuse_tiling = sqlite3_column_int(pResultsChunk, 14);
-	m_chunk.tex_splat_1_tiling = sqlite3_column_int(pResultsChunk, 15);
-	m_chunk.tex_splat_2_tiling = sqlite3_column_int(pResultsChunk, 16);
-	m_chunk.tex_splat_3_tiling = sqlite3_column_int(pResultsChunk, 17);
-	m_chunk.tex_splat_4_tiling = sqlite3_column_int(pResultsChunk, 18);
+	chunk.ID = sqlite3_column_int(pResultsChunk, 0);
+	chunk.name = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 1));
+	chunk.chunk_x_size_metres = sqlite3_column_int(pResultsChunk, 2);
+	chunk.chunk_y_size_metres = sqlite3_column_int(pResultsChunk, 3);
+	chunk.chunk_base_resolution = sqlite3_column_int(pResultsChunk, 4);
+	chunk.heightmap_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 5));
+	chunk.tex_diffuse_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 6));
+	chunk.tex_splat_alpha_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 7));
+	chunk.tex_splat_1_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 8));
+	chunk.tex_splat_2_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 9));
+	chunk.tex_splat_3_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 10));
+	chunk.tex_splat_4_path = reinterpret_cast<const char*>(sqlite3_column_text(pResultsChunk, 11));
+	chunk.render_wireframe = sqlite3_column_int(pResultsChunk, 12);
+	chunk.render_normals = sqlite3_column_int(pResultsChunk, 13);
+	chunk.tex_diffuse_tiling = sqlite3_column_int(pResultsChunk, 14);
+	chunk.tex_splat_1_tiling = sqlite3_column_int(pResultsChunk, 15);
+	chunk.tex_splat_2_tiling = sqlite3_column_int(pResultsChunk, 16);
+	chunk.tex_splat_3_tiling = sqlite3_column_int(pResultsChunk, 17);
+	chunk.tex_splat_4_tiling = sqlite3_column_int(pResultsChunk, 18);
 
 
 	//Process REsults into renderable
-	m_d3dRenderer.BuildDisplayList(&m_sceneGraph);
+	d3dRenderer.BuildDisplayList(&sceneGraph);
 	//build the renderable chunk 
-	m_d3dRenderer.BuildDisplayChunk(&m_chunk);
+	d3dRenderer.BuildDisplayChunk(&chunk);
 
 }
 
-void ToolMain::onActionSave()
+void ToolMain::OnActionSave()
 {
 	//SQL
 	int rc;
@@ -195,86 +216,86 @@ void ToolMain::onActionSave()
 	//OBJECTS IN THE WORLD Delete them all
 	//prepare SQL Text
 	sqlCommand = "DELETE FROM Objects";	 //will delete the whole object table.   Slightly risky but hey.
-	rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand, -1, &pResults, 0);
+	rc = sqlite3_prepare_v2(databaseConnection, sqlCommand, -1, &pResults, 0);
 	sqlite3_step(pResults);
 
 	//Populate with our new objects
 	std::wstring sqlCommand2;
-	int numObjects = m_sceneGraph.size();	//Loop thru the scengraph.
+	int numObjects = sceneGraph.size();	//Loop thru the scengraph.
 
 	for (int i = 0; i < numObjects; i++)
 	{
 		std::stringstream command;
 		command << "INSERT INTO Objects " 
-			<<"VALUES(" << m_sceneGraph.at(i).ID << ","
-			<< m_sceneGraph.at(i).chunk_ID  << ","
-			<< "'" << m_sceneGraph.at(i).model_path <<"'" << ","
-			<< "'" << m_sceneGraph.at(i).tex_diffuse_path << "'" << ","
-			<< m_sceneGraph.at(i).posX << ","
-			<< m_sceneGraph.at(i).posY << ","
-			<< m_sceneGraph.at(i).posZ << ","
-			<< m_sceneGraph.at(i).rotX << ","
-			<< m_sceneGraph.at(i).rotY << ","
-			<< m_sceneGraph.at(i).rotZ << ","
-			<< m_sceneGraph.at(i).scaX << ","
-			<< m_sceneGraph.at(i).scaY << ","
-			<< m_sceneGraph.at(i).scaZ << ","
-			<< m_sceneGraph.at(i).render << ","
-			<< m_sceneGraph.at(i).collision << ","
-			<< "'" << m_sceneGraph.at(i).collision_mesh << "'" << ","
-			<< m_sceneGraph.at(i).collectable << ","
-			<< m_sceneGraph.at(i).destructable << ","
-			<< m_sceneGraph.at(i).health_amount << ","
-			<< m_sceneGraph.at(i).editor_render << ","
-			<< m_sceneGraph.at(i).editor_texture_vis << ","
-			<< m_sceneGraph.at(i).editor_normals_vis << ","
-			<< m_sceneGraph.at(i).editor_collision_vis << ","
-			<< m_sceneGraph.at(i).editor_pivot_vis << ","
-			<< m_sceneGraph.at(i).pivotX << ","
-			<< m_sceneGraph.at(i).pivotY << ","
-			<< m_sceneGraph.at(i).pivotZ << ","
-			<< m_sceneGraph.at(i).snapToGround << ","
-			<< m_sceneGraph.at(i).AINode << ","
-			<< "'" << m_sceneGraph.at(i).audio_path << "'" << ","
-			<< m_sceneGraph.at(i).volume << ","
-			<< m_sceneGraph.at(i).pitch << ","
-			<< m_sceneGraph.at(i).pan << ","
-			<< m_sceneGraph.at(i).one_shot << ","
-			<< m_sceneGraph.at(i).play_on_init << ","
-			<< m_sceneGraph.at(i).play_in_editor << ","
-			<< m_sceneGraph.at(i).min_dist << ","
-			<< m_sceneGraph.at(i).max_dist << ","
-			<< m_sceneGraph.at(i).camera << ","
-			<< m_sceneGraph.at(i).path_node << ","
-			<< m_sceneGraph.at(i).path_node_start << ","
-			<< m_sceneGraph.at(i).path_node_end << ","
-			<< m_sceneGraph.at(i).parent_id << ","
-			<< m_sceneGraph.at(i).editor_wireframe << ","
-			<< "'" << m_sceneGraph.at(i).name << "'" << ","
+			<<"VALUES(" << sceneGraph.at(i).ID << ","
+			<< sceneGraph.at(i).chunk_ID  << ","
+			<< "'" << sceneGraph.at(i).model_path <<"'" << ","
+			<< "'" << sceneGraph.at(i).tex_diffuse_path << "'" << ","
+			<< sceneGraph.at(i).posX << ","
+			<< sceneGraph.at(i).posY << ","
+			<< sceneGraph.at(i).posZ << ","
+			<< sceneGraph.at(i).rotX << ","
+			<< sceneGraph.at(i).rotY << ","
+			<< sceneGraph.at(i).rotZ << ","
+			<< sceneGraph.at(i).scaX << ","
+			<< sceneGraph.at(i).scaY << ","
+			<< sceneGraph.at(i).scaZ << ","
+			<< sceneGraph.at(i).render << ","
+			<< sceneGraph.at(i).collision << ","
+			<< "'" << sceneGraph.at(i).collision_mesh << "'" << ","
+			<< sceneGraph.at(i).collectable << ","
+			<< sceneGraph.at(i).destructable << ","
+			<< sceneGraph.at(i).health_amount << ","
+			<< sceneGraph.at(i).editor_render << ","
+			<< sceneGraph.at(i).editor_texture_vis << ","
+			<< sceneGraph.at(i).editor_normals_vis << ","
+			<< sceneGraph.at(i).editor_collision_vis << ","
+			<< sceneGraph.at(i).editor_pivot_vis << ","
+			<< sceneGraph.at(i).pivotX << ","
+			<< sceneGraph.at(i).pivotY << ","
+			<< sceneGraph.at(i).pivotZ << ","
+			<< sceneGraph.at(i).snapToGround << ","
+			<< sceneGraph.at(i).AINode << ","
+			<< "'" << sceneGraph.at(i).audio_path << "'" << ","
+			<< sceneGraph.at(i).volume << ","
+			<< sceneGraph.at(i).pitch << ","
+			<< sceneGraph.at(i).pan << ","
+			<< sceneGraph.at(i).one_shot << ","
+			<< sceneGraph.at(i).play_on_init << ","
+			<< sceneGraph.at(i).play_in_editor << ","
+			<< sceneGraph.at(i).min_dist << ","
+			<< sceneGraph.at(i).max_dist << ","
+			<< sceneGraph.at(i).camera << ","
+			<< sceneGraph.at(i).path_node << ","
+			<< sceneGraph.at(i).path_node_start << ","
+			<< sceneGraph.at(i).path_node_end << ","
+			<< sceneGraph.at(i).parent_id << ","
+			<< sceneGraph.at(i).editor_wireframe << ","
+			<< "'" << sceneGraph.at(i).name << "'" << ","
 
-			<< m_sceneGraph.at(i).light_type << ","
-			<< m_sceneGraph.at(i).light_diffuse_r << ","
-			<< m_sceneGraph.at(i).light_diffuse_g << ","
-			<< m_sceneGraph.at(i).light_diffuse_b << ","
-			<< m_sceneGraph.at(i).light_specular_r << ","
-			<< m_sceneGraph.at(i).light_specular_g << ","
-			<< m_sceneGraph.at(i).light_specular_b << ","
-			<< m_sceneGraph.at(i).light_spot_cutoff << ","
-			<< m_sceneGraph.at(i).light_constant << ","
-			<< m_sceneGraph.at(i).light_linear << ","
-			<< m_sceneGraph.at(i).light_quadratic
+			<< sceneGraph.at(i).light_type << ","
+			<< sceneGraph.at(i).light_diffuse_r << ","
+			<< sceneGraph.at(i).light_diffuse_g << ","
+			<< sceneGraph.at(i).light_diffuse_b << ","
+			<< sceneGraph.at(i).light_specular_r << ","
+			<< sceneGraph.at(i).light_specular_g << ","
+			<< sceneGraph.at(i).light_specular_b << ","
+			<< sceneGraph.at(i).light_spot_cutoff << ","
+			<< sceneGraph.at(i).light_constant << ","
+			<< sceneGraph.at(i).light_linear << ","
+			<< sceneGraph.at(i).light_quadratic
 
 			<< ")";
 		std::string sqlCommand2 = command.str();
-		rc = sqlite3_prepare_v2(m_databaseConnection, sqlCommand2.c_str(), -1, &pResults, 0);
+		rc = sqlite3_prepare_v2(databaseConnection, sqlCommand2.c_str(), -1, &pResults, 0);
 		sqlite3_step(pResults);	
 	}
 	MessageBox(NULL, L"Objects Saved", L"Notification", MB_OK);
 }
 
-void ToolMain::onActionSaveTerrain()
+void ToolMain::OnActionSaveTerrain()
 {
-	m_d3dRenderer.SaveDisplayChunk(&m_chunk);
+	d3dRenderer.SaveDisplayChunk(&chunk);
 }
 
 void ToolMain::Tick(MSG *msg)
@@ -288,7 +309,7 @@ void ToolMain::Tick(MSG *msg)
 		//resend scenegraph to Direct X renderer
 
 	//Renderer Update Call
-	m_d3dRenderer.Tick(&m_toolInputCommands);
+	d3dRenderer.Tick(&toolInputCommands);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -298,16 +319,16 @@ void ToolMain::UpdateInput(MSG * msg)
 	{
 		//Global inputs,  mouse position and keys etc
 	case WM_KEYDOWN:
-		m_keyArray[msg->wParam] = true;
+		keyArray[msg->wParam] = true;
 		break;
 
 	case WM_KEYUP:
-		m_keyArray[msg->wParam] = false;
+		keyArray[msg->wParam] = false;
 		break;
 
 	case WM_MOUSEMOVE:
-		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
-		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
+		toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
+		toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
 		break;
 
 	case WM_LBUTTONDOWN:
@@ -317,62 +338,73 @@ void ToolMain::UpdateInput(MSG * msg)
 	case WM_LBUTTONUP:
 		OnMouseUp();
 		break;
-
 	}
 	//here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
-	//WASD movement
-	if (m_keyArray['W'])
-	{
-		m_toolInputCommands.forward = true;
-	}
-	else m_toolInputCommands.forward = false;
-	
-	if (m_keyArray['S'])
-	{
-		m_toolInputCommands.back = true;
-	}
-	else m_toolInputCommands.back = false;
-	if (m_keyArray['A'])
-	{
-		m_toolInputCommands.left = true;
-	}
-	else m_toolInputCommands.left = false;
 
-	if (m_keyArray['D'])
-	{
-		m_toolInputCommands.right = true;
-	}
-	else m_toolInputCommands.right = false;
-	//rotation
-	if (m_keyArray['E'])
-	{
-		m_toolInputCommands.rotRight = true;
-	}
-	else m_toolInputCommands.rotRight = false;
-	if (m_keyArray['Q'])
-	{
-		m_toolInputCommands.rotLeft = true;
-	}
-	else m_toolInputCommands.rotLeft = false;
-
-	//WASD
+	UpdateInputCommands();
 }
 
-void ToolMain::SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog)
+void ToolMain::UpdateInputCommands()
 {
-	this->objectPropertiesDialog = objectPropertiesDialog;
+	if (keyArray['W'])
+	{
+		toolInputCommands.forward = true;
+	}
+	else toolInputCommands.forward = false;
+
+	if (keyArray['S'])
+	{
+		toolInputCommands.back = true;
+	}
+	else toolInputCommands.back = false;
+	if (keyArray['A'])
+	{
+		toolInputCommands.left = true;
+	}
+	else toolInputCommands.left = false;
+
+	if (keyArray['D'])
+	{
+		toolInputCommands.right = true;
+	}
+	else toolInputCommands.right = false;
+	//rotation
+	if (keyArray['E'])
+	{
+		toolInputCommands.rotRight = true;
+	}
+	else toolInputCommands.rotRight = false;
+	if (keyArray['Q'])
+	{
+		toolInputCommands.rotLeft = true;
+	}
+	else toolInputCommands.rotLeft = false;
 }
 
 void ToolMain::OnMouseDown()
 {
-	m_toolInputCommands.mouseLMBDown = true;
+	toolInputCommands.mouseLMBDown = true;
 	
-	m_camera.OnMouseDown();
+	camera.OnMouseDown();
+
+	// This gets set too often! needs to be only done once when an object is selected if possible. Should probably merge the selection to the 
+	if (objectPropertiesDialog != nullptr)
+		objectPropertiesDialog->SetCurrentSceneObject(camera.GetNearestSelectedSceneObject());
 }
 
 void ToolMain::OnMouseUp()
 {
-	m_toolInputCommands.mouseLMBDown = false;
+	toolInputCommands.mouseLMBDown = false;
 
-	m_camera.OnMouseUp();
+	camera.OnMouseUp();
+}
+
+void ToolMain::OnMainWindowLostFocus()
+{
+	camera.OnLostFocus();
+}
+
+void ToolMain::OnMainWindowRegainFocus()
+{
+	camera.OnRegainFocus();
 }

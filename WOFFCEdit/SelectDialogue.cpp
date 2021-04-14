@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "SelectDialogue.h"
 
+#include "ToolMain.h"
+
 // SelectDialogue dialog
 
 IMPLEMENT_DYNAMIC(SelectDialogue, CDialogEx)
@@ -15,10 +17,9 @@ BEGIN_MESSAGE_MAP(SelectDialogue, CDialogEx)
 END_MESSAGE_MAP()
 
 
-SelectDialogue::SelectDialogue(CWnd* pParent, std::vector<SceneObject>* SceneGraph)		//constructor used in modal
+SelectDialogue::SelectDialogue(CWnd* pParent, void* defineToMakeModal)		//constructor used in modal
 	: CDialogEx(IDD_DIALOG1, pParent)
 {
-	m_sceneGraph = SceneGraph;
 }
 
 SelectDialogue::SelectDialogue(CWnd * pParent)			//constructor used in modeless
@@ -28,22 +29,6 @@ SelectDialogue::SelectDialogue(CWnd * pParent)			//constructor used in modeless
 
 SelectDialogue::~SelectDialogue()
 {
-}
-
-///pass through pointers to the data in the tool we want to manipulate
-void SelectDialogue::SetObjectData(std::vector<SceneObject>* SceneGraph, int * selection)
-{
-	m_sceneGraph = SceneGraph;
-	m_currentSelection = selection;
-
-	//roll through all the objects in the scene graph and put an entry for each in the listbox
-	int numSceneObjects = m_sceneGraph->size();
-	for (int i = 0; i < numSceneObjects; i++)
-	{
-		//easily possible to make the data string presented more complex. showing other columns.
-		std::wstring listBoxEntry = std::to_wstring(m_sceneGraph->at(i).ID);
-		m_listBox.AddString(listBoxEntry.c_str());
-	}
 }
 
 
@@ -60,23 +45,24 @@ void SelectDialogue::Select()
 	
 	m_listBox.GetText(index, currentSelectionValue);
 
-	*m_currentSelection = _ttoi(currentSelectionValue);
-
+	auto currentSelection = _ttoi(currentSelectionValue);
+	ToolMain::GetInstance()->GetCamera().SetCurrentlySelected(currentSelection);
 }
 
 BOOL SelectDialogue::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	//uncomment for modal only
-/*	//roll through all the objects in the scene graph and put an entry for each in the listbox
-	int numSceneObjects = m_sceneGraph->size();
-	for (size_t i = 0; i < numSceneObjects; i++)
+	auto toolMain = ToolMain::GetInstance();
+
+	//roll through all the objects in the scene graph and put an entry for each in the listbox
+	int numSceneObjects = toolMain->GetSceneGraph().size();
+	for (int i = 0; i < numSceneObjects; i++)
 	{
 		//easily possible to make the data string presented more complex. showing other columns.
-		std::wstring listBoxEntry = std::to_wstring(m_sceneGraph->at(i).ID);
+		std::wstring listBoxEntry = std::to_wstring(toolMain->GetSceneGraph().at(i).ID);
 		m_listBox.AddString(listBoxEntry.c_str());
-	}*/
+	}
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // EXCEPTION: OCX Property Pages should return FALSE

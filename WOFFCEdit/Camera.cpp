@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-#include "Game.h"
+#include "ToolMain.h"
 
 Camera::Camera()
 	: isFocused(true)
@@ -9,13 +9,13 @@ Camera::Camera()
 {
 }
 
-void Camera::OnInitialise(ToolMain* toolMain, InputCommands* inputCommands, Game* renderer,
-                          std::vector<SceneObject>* sceneGraph)
+Camera::~Camera()
+{
+}
+
+void Camera::OnInitialise(ToolMain* toolMain)
 {
 	this->toolMain = toolMain;
-	this->inputCommands = inputCommands;
-	this->renderer = renderer;
-	this->sceneGraph = sceneGraph;
 }
 
 void Camera::OnMouseDown()
@@ -26,7 +26,7 @@ void Camera::OnMouseDown()
 	if (wasClicked)
 		return;
 	
-	currentSelection = renderer->MousePicking();
+	currentSelection = toolMain->GetRenderer().MousePicking();
 
 	if (currentSelection.empty())
 	{
@@ -43,10 +43,10 @@ void Camera::OnMouseDown()
 		currentChunkIDs.reserve(currentSelection.size());
 		for (auto& i : currentSelection)
 		{
-			currentChunkIDs.push_back(sceneGraph->at(i.second).chunk_ID);
+			currentChunkIDs.push_back(toolMain->GetSceneGraph().at(i.second).chunk_ID);
 		}
 	}
-
+	
 	wasClicked = true; // Prevent the selection from happening twice.
 }
 
@@ -65,6 +65,13 @@ void Camera::OnRegainFocus()
 	this->isFocused = true;
 }
 
+void Camera::SetCurrentlySelected(int sceneGraphIndex)
+{
+	nearestSelectedIndex = sceneGraphIndex;
+	currentSelection.clear();
+	currentSelection.push_back(std::make_pair(0.f, sceneGraphIndex));
+}
+
 int Camera::GetClosestCurrentlySelectedIndex()
 {
 	return nearestSelectedIndex;
@@ -75,10 +82,10 @@ SceneObject* Camera::GetNearestSelectedSceneObject()
 	if (nearestSelectedIndex == -1)
 		return nullptr;
 	
-	return &sceneGraph->at(nearestSelectedIndex);
+	return &toolMain->GetSceneGraph().at(nearestSelectedIndex);
 }
 
-std::vector<float, int> Camera::GetCurrentlySelected()
+std::vector<std::pair<float, int>> Camera::GetCurrentlySelected()
 {
 	return currentSelection;
 }

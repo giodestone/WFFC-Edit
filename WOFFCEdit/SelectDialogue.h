@@ -12,10 +12,9 @@ class SelectDialogue : public CDialogEx
 	DECLARE_DYNAMIC(SelectDialogue)
 
 public:
-	SelectDialogue(CWnd* pParent, std::vector<SceneObject>* SceneGraph);   // modal // takes in out scenegraph in the constructor
+	SelectDialogue(CWnd* pParent, void* defineToMakeModal);   // modal // takes in out scenegraph in the constructor
 	SelectDialogue(CWnd* pParent = NULL);
 	virtual ~SelectDialogue();
-	void SetObjectData(std::vector<SceneObject>* SceneGraph, int * Selection);	//passing in pointers to the data the class will operate on.
 	
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -25,10 +24,6 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	afx_msg void Select();	//Item has been selected
-
-	std::vector<SceneObject> * m_sceneGraph;
-	int * m_currentSelection;
-	
 
 	DECLARE_MESSAGE_MAP()
 public:

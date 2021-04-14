@@ -57,7 +57,6 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 		auto tempName = StringToCString(currentSceneObject->name);
 		DDX_Text(pDX, IDC_NAMEEDIT, tempName);
 		currentSceneObject->name = CStringToString(tempName);
-
 		DDX_Text(pDX, IDC_POSXEDIT, currentSceneObject->posX);
 		DDX_Text(pDX, IDC_POSYEDIT, currentSceneObject->posY);
 		DDX_Text(pDX, IDC_POSZEDIT, currentSceneObject->posZ);

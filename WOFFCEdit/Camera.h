@@ -1,12 +1,14 @@
 #pragma once
 #include <vector>
 
+#include "InputCommands.h"
+#include "SceneObject.h"
+
+class ToolMain;
+
 class Camera
 {
-	class ToolMain* toolMain;
-	class InputCommands* inputCommands;
-	class Game* renderer;
-	std::vector<class SceneObject>* sceneGraph;
+	ToolMain* toolMain;
 
 	bool isFocused;
 	
@@ -17,18 +19,14 @@ class Camera
 	bool wasClicked;
 public:
 	Camera();
-	virtual ~Camera();
+	~Camera();
 
 	/// <summary>
 	/// Should be called before use once to set up references.
 	/// </summary>
 	/// <param name="toolMain"></param>
-	/// <param name="inputCommands"></param>
-	/// <param name="renderer"></param>
-	/// <param name="sceneGraph"></param>
-	void OnInitialise(class ToolMain* toolMain, class InputCommands* inputCommands, class Game* renderer, std::vector<class SceneObject>* sceneGraph);
+	void OnInitialise(ToolMain* toolMain);
 
-	
 	/// <summary>
 	/// Should be called when the MOUSEDOWN event happens. Updates current selection.
 	/// </summary>
@@ -49,6 +47,8 @@ public:
 	/// </summary>
 	void OnRegainFocus();
 
+	
+	// Properties
 
 	/// <summary>
 	/// Get the index of the closest selected object, as it appears in SceneGraph.
@@ -63,9 +63,15 @@ public:
 	SceneObject* GetNearestSelectedSceneObject();
 
 	/// <summary>
-	/// Get all the currently selected objects, as sorted by the distance away from camera.
+	/// Get all the currently selected objects, as sorted by the distance away from camera. If distance to camera is zero the current selection was set manually.
 	/// </summary>
 	/// <returns>Empty if none; Currently selected objects, as sorted by the distance away from camera.</returns>
 	std::vector<std::pair<float, int>> GetCurrentlySelected();
+
+	/// <summary>
+	/// Set the currently selected object based on the scene graph index.
+	/// </summary>
+	/// <param name="sceneGraphIndex"></param>
+	void SetCurrentlySelected(int sceneGraphIndex);
 };
 

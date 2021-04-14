@@ -66,7 +66,7 @@ BOOL MFCMain::InitInstance()
 	m_width		= WindowRECT.Width();
 	m_height	= WindowRECT.Height();
 
-	m_ToolSystem.onActionInitialise(m_toolHandle, m_width, m_height);
+	m_ToolSystem.OnActionInitialise(m_toolHandle, m_width, m_height);
 	
 	return TRUE;
 }
@@ -98,7 +98,7 @@ int MFCMain::Run()
 		}
 		else
 		{	
-			int ID = m_ToolSystem.getCurrentSelectionID();
+			int ID = m_ToolSystem.GetClosestCurrentlySelectedIndex();
 			std::wstring statusString = L"Selected Object: " + std::to_wstring(ID);
 			m_ToolSystem.Tick(&msg);
 
@@ -124,7 +124,7 @@ void MFCMain::MenuFileQuit()
 
 void MFCMain::MenuFileSaveTerrain()
 {
-	m_ToolSystem.onActionSaveTerrain();
+	m_ToolSystem.OnActionSaveTerrain();
 }
 
 void MFCMain::MenuEditSelect()
@@ -142,12 +142,11 @@ void MFCMain::MenuEditSelect()
 	m_ToolSelectDialogue = new SelectDialogue(GetMainWnd());
 	m_ToolSelectDialogue->Create(IDD_DIALOG1);	//Start up modeless
 	m_ToolSelectDialogue->ShowWindow(SW_SHOW);	//show modeless
-	m_ToolSelectDialogue->SetObjectData(&m_ToolSystem.m_sceneGraph, &m_ToolSystem.m_selectedObject);
 }
 
 void MFCMain::ToolBarButton1()
 {
-	m_ToolSystem.onActionSave();
+	m_ToolSystem.OnActionSave();
 }
 
 void MFCMain::ShowObjectProperties()

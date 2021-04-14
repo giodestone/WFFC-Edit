@@ -1,6 +1,6 @@
 #include "MFCFrame.h"
 #include "resource.h"
-
+#include "ToolMain.h"
 
 
 BEGIN_MESSAGE_MAP(CMyFrame, CFrameWnd)
@@ -39,33 +39,21 @@ void CMyFrame::OnUpdatePage(CCmdUI * pCmdUI)
 
 void CMyFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
-	OutputDebugStringW(L"MFCFrame active changed...\n");
-	OutputDebugStringW(L"This Window hWnd: ");
-	OutputDebugStringW(std::to_wstring((long)m_hWnd).c_str());
-	OutputDebugStringW(L"\n");
-	OutputDebugStringW(L"Other Window hWnd: ");
-	if (pWndOther == nullptr)
-		OutputDebugStringW(L"nullptr");
-	else
-		OutputDebugStringW(std::to_wstring((long)pWndOther->m_hWnd).c_str());
-	OutputDebugStringW(L"\n");
-	OutputDebugStringW(L"Command: ");
+	if (!ToolMain::IsInitialised())
+		return;
+	
 	switch (nState)
 	{
 	case WA_ACTIVE:
-		OutputDebugStringW(L"WA_ACTIVE");
-		break;
 	case WA_CLICKACTIVE:
-		OutputDebugStringW(L"WA_CLICKALIVE");
+		ToolMain::GetInstance()->OnMainWindowRegainFocus();
 		break;
 	case WA_INACTIVE:
-		OutputDebugStringW(L"WA_INACTIVE");
+		ToolMain::GetInstance()->OnMainWindowLostFocus();
 		break;
 	}
 
 	// on active or clickalive mark as focused on main pane; on inactive mark as inactive.
-	
-	OutputDebugStringW(L"\n\n\n");
 }
 
 //oncretae, called after init but before window is shown. 
@@ -99,6 +87,16 @@ int CMyFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 	m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_TOOL, SBPS_NORMAL, rect.Width() - 500);//set width of status bar panel
+	
+	return 0;
+}
+
+LRESULT CMyFrame::OnShowWindow(BOOL shouldShow, UINT status)
+{
+	if (shouldShow)
+	{
+		ToolMain::GetInstance()->SetMainWindowHwnd(m_hWnd);
+	}
 
 	return 0;
 }

@@ -14,49 +14,97 @@
 
 class ToolMain
 {
-public: //methods
-	ToolMain();
-	~ToolMain();
+	static ToolMain* instance;
+	static bool isInitialised;
+	
+	Game d3dRenderer; //Instance of D3D rendering system for our tool
+	Camera camera;
+	InputCommands toolInputCommands; //input commands that we want to use and possibly pass over to the renderer
+	CRect windowRect; //Window area rectangle. 
+	char keyArray[256];
+	sqlite3* databaseConnection; //sqldatabase handle
 
-	//onAction - These are the interface to MFC
-	int		getCurrentSelectionID();										//returns the selection number of currently selected object so that It can be displayed.
-	void	onActionInitialise(HWND handle, int width, int height);			//Passes through handle and hieght and width and initialises DirectX renderer and SQL LITE
-	void	onActionFocusCamera();
-	void	onActionLoad();													//load the current chunk
-	afx_msg	void	onActionSave();											//save the current chunk
-	afx_msg void	onActionSaveTerrain();									//save chunk geometry
+	int width; //dimensions passed to directX
+	int height;
+	int currentChunk; //the current chunk of thedatabase that we are operating on.  Dictates loading and saving. 
 
-	void	Tick(MSG *msg);
-	void	UpdateInput(MSG *msg);
-	void SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog);
-
-public:	//variables
-	std::vector<SceneObject>    m_sceneGraph;	//our scenegraph storing all the objects in the current chunk
-	ChunkObject					m_chunk;		//our landscape chunk
-	int m_selectedObject;						//ID of current Selection
 	ObjectPropertiesDialog* objectPropertiesDialog;
 
-private:	//methods
+	std::vector<SceneObject> sceneGraph;	//our scenegraph storing all the objects in the current chunk
+	ChunkObject	chunk;//our landscape chunk
+	int selectedObject;	//ID of current Selection
+
+	HWND mainWindowHwnd;
+	
+
+	// Methods
 	void OnContentAdded();
 
+	void UpdateInputCommands();
+
+	// Callbacks for events.
 	void OnMouseDown();
 	void OnMouseUp();
 
+public:	
+	ToolMain();
+	~ToolMain();
 
-		
-private:	//variables
-	HWND	m_toolHandle;		//Handle to the  window
-	Game	m_d3dRenderer;		//Instance of D3D rendering system for our tool
-	Camera m_camera;
-	InputCommands m_toolInputCommands;		//input commands that we want to use and possibly pass over to the renderer
-	CRect	WindowRECT;		//Window area rectangle. 
-	char	m_keyArray[256];
-	sqlite3 *m_databaseConnection;	//sqldatabase handle
-
-	int m_width;		//dimensions passed to directX
-	int m_height;
-	int m_currentChunk;			//the current chunk of thedatabase that we are operating on.  Dictates loading and saving. 
+	static ToolMain* GetInstance();
+	static bool IsInitialised();
 	
+	// Properties
 
+	/// <summary>
+	/// Get a reference to the camera.
+	/// </summary>
+	/// <returns>The camera object.</returns>
+	Camera& GetCamera() { return camera; }
+
+	/// <summary>
+	/// Get a reference to the renderer.
+	/// </summary>
+	/// <returns></returns>
+	Game& GetRenderer() { return d3dRenderer; }
+
+	/// <summary>
+	/// Get the scene graph.
+	/// </summary>
+	/// <returns>A reference to the scene graph.</returns>
+	std::vector<SceneObject>& GetSceneGraph() { return sceneGraph; }
+
+	/// <summary>
+	/// Get current selection index.
+	/// </summary>
+	/// <returns>-1 if nothing is selected; the index of the item in the Scene Graph.</returns>
+	/// <seealso cref="Camera::GetClosestCurrentlySelectedIndex"/>
+	int	GetClosestCurrentlySelectedIndex();
+
+	/// <summary>
+	/// Set reference to the object properties dialog.
+	/// </summary>
+	/// <param name="objectPropertiesDialog"></param>
+	void SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog) { this->objectPropertiesDialog = objectPropertiesDialog; }
+
+	/// <summary>
+	/// Set the HWND of the main window that the camera preview is located.
+	/// </summary>
+	/// <param name="hWnd"></param>
+	void SetMainWindowHwnd(HWND hWnd) { mainWindowHwnd = hWnd; }
+	
+	// MFC Callbacks
+	
+	void OnActionInitialise(HWND handle, int width, int height);			//Passes through handle and hieght and width and initialises DirectX renderer and SQL LITE
+	void OnActionLoad();													//load the current chunk
+	afx_msg	void OnActionSave();											//save the current chunk
+	afx_msg void OnActionSaveTerrain();									//save chunk geometry
+
+	void OnMainWindowLostFocus();
+	void OnMainWindowRegainFocus();
+	
+	// Called externally.
+	
+	void Tick(MSG *msg);
+	void UpdateInput(MSG *msg);
 	
 };

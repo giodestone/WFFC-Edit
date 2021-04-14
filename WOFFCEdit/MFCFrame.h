@@ -2,7 +2,6 @@
 #include <afxwin.h> 
 #include <afxext.h>
 #include "MFCRenderFrame.h"
-#include "ToolMain.h"
 
 
 
@@ -10,6 +9,7 @@ class CMyFrame : public CFrameWnd
 {
 protected:
 //	DECLARE_DYNAMIC(CMainFrame)
+	class ToolMain* m_toolMain;
 
 public:
 
@@ -24,11 +24,11 @@ public:
 	afx_msg void OnUpdatePage(CCmdUI *pCmdUI);
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 
-
 private:	//overrides
 	int		m_selectionID;	//
 
 	//note the afx_message keyword is linking this method to message map access.
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg LRESULT OnShowWindow(BOOL shouldShow, UINT status);
 	DECLARE_MESSAGE_MAP()	// required macro for message map functionality  One per class
 };
