@@ -32,8 +32,10 @@ class ToolMain
 	int currentChunk; //the current chunk of thedatabase that we are operating on.  Dictates loading and saving. 
 
 	ObjectPropertiesDialog* objectPropertiesDialog;
-
+	
 	std::vector<SceneObject> sceneGraph;	//our scenegraph storing all the objects in the current chunk
+	std::unordered_map<int, SceneObject*> idToSceneObject;
+	
 	ChunkObject	chunk;//our landscape chunk
 	int selectedObject;	//ID of current Selection
 

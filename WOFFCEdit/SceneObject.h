@@ -56,6 +56,12 @@ public:
 	~SceneObject();
 
 	/// <summary>
+	/// Check whether the object is modified and must be redrawn.
+	/// </summary>
+	/// <returns>true if modified; false if not.</returns>
+	bool IsModified() { return isModified; }
+	
+	/// <summary>
 	/// Mark the object as modified, therefore needing updating for the renderer.
 	/// </summary>
 	void MarkModified();

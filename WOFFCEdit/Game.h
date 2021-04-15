@@ -64,7 +64,7 @@ public:
 	void OnWindowSizeChanged(int width, int height);
 
 	//tool specific
-	void BuildDisplayList(std::vector<SceneObject> * SceneGraph); //note vector passed by reference
+	void BuildDisplayList(std::vector<SceneObject> * sceneGraph, bool rebuildAll=true); //note vector passed by reference
 
 	DisplayObject BuildObject(SceneObject& sceneObject);
 	

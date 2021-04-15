@@ -318,20 +318,28 @@ void Game::OnWindowSizeChanged(int width, int height)
     CreateWindowSizeDependentResources();
 }
 
-void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
+void Game::BuildDisplayList(std::vector<SceneObject> * sceneGraph, bool rebuildAll)
 {
-	auto device = m_deviceResources->GetD3DDevice();
-	auto devicecontext = m_deviceResources->GetD3DDeviceContext();
-
-	if (!m_displayList.empty())		//is the vector empty
+	if (rebuildAll)
 	{
-		m_displayList.clear();		//if not, empty it
-	}
+        m_displayList.clear();
 
-	for (auto& obj : *SceneGraph)
-	{
-		m_displayList.push_back(BuildObject(obj));
+		for (auto& obj : *sceneGraph)
+		{
+			m_displayList.push_back(BuildObject(obj));
+		}	
 	}
+    else
+    {
+        auto toRebuildIter = std::find_if(sceneGraph->begin(), sceneGraph->end(), [](SceneObject& so) { return so.IsModified(); });
+
+    	while (toRebuildIter != sceneGraph->end())
+    	{
+            
+    		
+            std::advance(toRebuildIter, 1);
+    	}
+    }
 		
 }
 
