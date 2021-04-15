@@ -7,9 +7,8 @@ protected:
 	void UpdateContents();
 
 public:
-	
-	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
-	afx_msg void OnKillFocus(CWnd* pNewWnd);
-
 	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
+	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 };

@@ -1,8 +1,8 @@
 #include "SceneObject.h"
 
 
-
 SceneObject::SceneObject()
+	: isModified(false)
 {
 	ID = 0;
 	chunk_ID =0 ;
@@ -53,4 +53,14 @@ SceneObject::SceneObject()
 
 SceneObject::~SceneObject()
 {
+}
+
+void SceneObject::MarkModified()
+{
+	isModified = true;
+}
+
+void SceneObject::UnmarkModified()
+{
+	isModified = false;
 }

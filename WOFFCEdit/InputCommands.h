@@ -16,11 +16,29 @@ struct InputCommands
 	bool rotUp;
 	bool rotDown;
 
+	// Mouse
 	int mouseX = 0;
 	int mouseY = 0;
-
-	int previousMouseX = 0;
-	int previousMouseY = 0;
-	
 	bool mouseLMBDown = false;
+	
+
+	/// <summary>
+	/// Clear any commands to be false. Does not affect mouse.
+	/// </summary>
+	void ClearCommands()
+	{
+		forward = false;
+		back = false;
+		right = false;
+		left = false;
+		up = false;
+		down = false;
+
+		speedUp = false;
+
+		rotRight = false;
+		rotLeft = false;
+		rotUp = false;
+		rotDown = false;
+	}
 };

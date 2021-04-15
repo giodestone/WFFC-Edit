@@ -107,4 +107,13 @@ public:
 	void ClearCurrentSceneObject();
 
 	afx_msg void OnChangeOrUpdateNameEdit();
+	afx_msg void OnEnChangeOrUpdatePosxedit();
+	afx_msg void OnEnChangeOrUpdatePosyedit();
+	afx_msg void OnEnChangeOrUpdatePoszedit();
+	afx_msg void OnEnChangeOrUpdateRotxedit();
+	afx_msg void OnEnChangeOrUpdaterotyedit();
+	afx_msg void OnEnChangeOrUpdateRotzedit();
+	afx_msg void OnEnChangeOrUpdateScalexedit();
+	afx_msg void OnEnChangeOrUpdateScaleyedit();
+	afx_msg void OnEnChangeOrUpdateScalezedit();
 };

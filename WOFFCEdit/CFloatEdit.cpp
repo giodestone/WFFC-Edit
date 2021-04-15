@@ -2,22 +2,13 @@
 
 #include <string>
 
+#include "ToolMain.h"
+
 BEGIN_MESSAGE_MAP(CFloatEdit, CEdit)
-	ON_WM_KEYDOWN()
 	ON_WM_KILLFOCUS()
+	ON_WM_CHAR()
 END_MESSAGE_MAP()
 
-void CFloatEdit::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	// Kill focus if applying.
-	if (nChar == VK_RETURN || nChar == VK_TAB)
-	{
-		this->EnableWindow(false);
-		this->EnableWindow(true);
-	}
-
-	CEdit::OnKeyDown(nChar, nRepCnt, nFlags);
-}
 
 void CFloatEdit::UpdateContents()
 {
@@ -43,4 +34,17 @@ void CFloatEdit::OnKillFocus(CWnd* pNewWnd)
 	UpdateContents();
 
 	CEdit::OnKillFocus(pNewWnd);
+}
+
+void CFloatEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// Stop sound when return or tab are pressed.
+	if (nChar == VK_RETURN || nChar == VK_TAB)
+	{
+		this->EnableWindow(false);
+		this->EnableWindow(true);
+		return;
+	}
+
+	CEdit::OnChar(nChar, nRepCnt, nFlags);
 }

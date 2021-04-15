@@ -7,11 +7,10 @@
 
 
 class SceneObject
-{
-public:
-	SceneObject();
-	~SceneObject();
-
+{	
+	bool isModified;
+	
+public:	
 	int ID;
 	int chunk_ID;
 	std::string model_path;
@@ -52,5 +51,18 @@ public:
 	float light_linear;
 	float light_quadratic;
 
+	
+	SceneObject();
+	~SceneObject();
+
+	/// <summary>
+	/// Mark the object as modified, therefore needing updating for the renderer.
+	/// </summary>
+	void MarkModified();
+
+	/// <summary>
+	/// Unmark as modified - no longer needing to be updated.
+	/// </summary>
+	void UnmarkModified();
 };
 

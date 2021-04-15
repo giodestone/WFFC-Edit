@@ -68,6 +68,8 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 		DDX_Text(pDX, IDC_SCALEXEDIT, currentSceneObject->scaX);
 		DDX_Text(pDX, IDC_SCALEYEDIT, currentSceneObject->scaY);
 		DDX_Text(pDX, IDC_SCALEZEDIT, currentSceneObject->scaZ);
+
+		currentSceneObject->MarkModified();
 	}
 }
 
@@ -439,6 +441,9 @@ void ObjectPropertiesDialog::SetAllFieldsEnableState(bool state)
 
 void ObjectPropertiesDialog::SetCurrentSceneObject(SceneObject* sceneObject)
 {
+	if (currentSceneObject != nullptr)
+		UpdateData();
+	
 	this->currentSceneObject = sceneObject;
 
 	UpdateFieldsWithDataFromCurrentSceneObject();
@@ -554,6 +559,8 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 		currentSceneObject->light_linear = currentProperty->GetValue().fltVal;
 	else if (propertyToDatabaseName[currentProperty] == "light_quadratic")
 		currentSceneObject->light_quadratic = currentProperty->GetValue().fltVal;
+
+	currentSceneObject->MarkModified();
 	
 	return 0;
 }
