@@ -4,7 +4,7 @@
 
 Selection::Selection()
 	: isFocused(true)
-	, nearestSelectedIndex(-1)
+	, nearestSelectedSceneObjectID(-1)
 	, wasClicked(false)
 {
 }
@@ -32,13 +32,13 @@ void Selection::OnMouseDown()
 	{
 		currentChunkIDs.clear();
 		
-		nearestSelectedIndex = -1;
+		nearestSelectedSceneObjectID = NothingSelectedID;
 	}
 	else
 	{
 		currentChunkIDs.clear();
 		
-		nearestSelectedIndex = currentSelection.front().second;
+		nearestSelectedSceneObjectID = currentSelection.front().second;
 		
 		currentChunkIDs.reserve(currentSelection.size());
 		for (auto& i : currentSelection)
@@ -68,24 +68,24 @@ void Selection::OnRegainFocus()
 	this->isFocused = true;
 }
 
-void Selection::SetCurrentlySelected(int sceneGraphIndex)
+void Selection::SetCurrentlySelected(int sceneObjectID)
 {
-	nearestSelectedIndex = sceneGraphIndex;
+	nearestSelectedSceneObjectID = sceneObjectID;
 	currentSelection.clear();
-	currentSelection.push_back(std::make_pair(0.f, sceneGraphIndex));
+	currentSelection.push_back(std::make_pair(0.f, sceneObjectID));
 }
 
-int Selection::GetClosestCurrentlySelectedIndex()
+int Selection::GetClosestSelectedSceneObjectID()
 {
-	return nearestSelectedIndex;
+	return nearestSelectedSceneObjectID;
 }
 
 SceneObject* Selection::GetNearestSelectedSceneObject()
 {
-	if (nearestSelectedIndex == -1)
+	if (nearestSelectedSceneObjectID == NothingSelectedID)
 		return nullptr;
 	
-	return &toolMain->GetSceneGraph().at(nearestSelectedIndex);
+	return &toolMain->GetSceneGraph().at(nearestSelectedSceneObjectID);
 }
 
 std::vector<std::pair<float, int>> Selection::GetCurrentlySelected()

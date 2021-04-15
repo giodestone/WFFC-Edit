@@ -98,8 +98,8 @@ int MFCMain::Run()
 		}
 		else
 		{	
-			int ID = m_ToolSystem.GetClosestCurrentlySelectedIndex();
-			std::wstring statusString = L"Selected Object: " + std::to_wstring(ID);
+			int ID = m_ToolSystem.GetClosestSelectedSceneObjectID();
+			std::wstring statusString = L"Selected Object ID: " + std::to_wstring(ID);
 			m_ToolSystem.Tick(&msg);
 
 			//send current object ID to status bar in The main frame

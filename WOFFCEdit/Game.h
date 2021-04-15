@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "SceneObject.h"
@@ -47,9 +49,9 @@ public:
 	void Clear();
 
 	/// <summary>
-	/// Returns the indices of the objects in the scene graph based on the distance away from where the moused clicked, sorted by distance ascending.
+	/// Returns the IDs of the objects in the scene graph based on the distance away from where the moused clicked, sorted by distance ascending.
 	/// </summary>
-	/// <returns>Indices of the objects in the scene graph based on the distance away from where the mouse clicked, sorted by distance ascending</returns>
+	/// <returns>IDs of the objects in the scene graph based on the distance away from where the mouse clicked, sorted by distance ascending</returns>
 	std::vector<std::pair<float, int>> MousePicking();
 	
 	// IDeviceNotify
@@ -64,7 +66,7 @@ public:
 	void OnWindowSizeChanged(int width, int height);
 
 	//tool specific
-	void BuildDisplayList(std::vector<SceneObject> * sceneGraph, bool rebuildAll=true); //note vector passed by reference
+	void BuildDisplayList(std::unordered_map<int, SceneObject>& sceneGraph, bool rebuildAll=true); //note vector passed by reference
 
 	DisplayObject BuildObject(SceneObject& sceneObject);
 	
@@ -92,7 +94,7 @@ private:
 	RECT m_ScreenDimensions;
 	
 	//tool specific
-	std::vector<DisplayObject>			m_displayList;
+	std::unordered_map<int, DisplayObject>			m_displayList;
 	DisplayChunk						m_displayChunk;
 	InputCommands						m_InputCommands;
 

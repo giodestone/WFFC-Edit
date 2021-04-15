@@ -55,17 +55,14 @@ BOOL SelectDialogue::OnInitDialog()
 
 	auto toolMain = ToolMain::GetInstance();
 
-	//roll through all the objects in the scene graph and put an entry for each in the listbox
-	int numSceneObjects = toolMain->GetSceneGraph().size();
-	for (int i = 0; i < numSceneObjects; i++)
+	// Add IDs to the select box.
+	for (auto& p : ToolMain::GetInstance()->GetSceneGraph())
 	{
-		//easily possible to make the data string presented more complex. showing other columns.
-		std::wstring listBoxEntry = std::to_wstring(toolMain->GetSceneGraph().at(i).ID);
+		std::wstring listBoxEntry = std::to_wstring(p.first);
 		m_listBox.AddString(listBoxEntry.c_str());
 	}
 	
-	return TRUE;  // return TRUE unless you set the focus to a control
-				  // EXCEPTION: OCX Property Pages should return FALSE
+	return TRUE;
 }
 
 void SelectDialogue::PostNcDestroy()

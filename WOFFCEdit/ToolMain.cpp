@@ -56,9 +56,9 @@ bool ToolMain::IsInitialised()
 }
 
 
-int ToolMain::GetClosestCurrentlySelectedIndex()
+int ToolMain::GetClosestSelectedSceneObjectID()
 {
-	return selection.GetClosestCurrentlySelectedIndex();
+	return selection.GetClosestSelectedSceneObjectID();
 }
 
 void ToolMain::OnActionInitialise(HWND handle, int width, int height)
@@ -175,7 +175,7 @@ void ToolMain::OnActionLoad()
 	
 
 		//send completed object to scenegraph
-		sceneGraph.push_back(newSceneObject);
+		sceneGraph.insert({newSceneObject.ID, newSceneObject });
 	}
 
 	//THE WORLD CHUNK
@@ -208,7 +208,7 @@ void ToolMain::OnActionLoad()
 
 
 	//Process REsults into renderable
-	d3dRenderer.BuildDisplayList(&sceneGraph);
+	d3dRenderer.BuildDisplayList(sceneGraph);
 	//build the renderable chunk 
 	d3dRenderer.BuildDisplayChunk(&chunk);
 

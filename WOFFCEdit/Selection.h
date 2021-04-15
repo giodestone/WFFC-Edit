@@ -13,7 +13,7 @@ class Selection
 	bool isFocused;
 	
 	std::vector<std::pair<float, int>> currentSelection;
-	int nearestSelectedIndex;
+	int nearestSelectedSceneObjectID;
 	std::vector<int> currentChunkIDs;
 
 	bool wasClicked;
@@ -21,7 +21,7 @@ public:
 	Selection();
 	~Selection();
 
-	static constexpr int NoSelectionIndex = -1;
+	static constexpr int NothingSelectedID = -1;
 	
 	/// <summary>
 	/// Should be called before use once to set up references.
@@ -53,10 +53,10 @@ public:
 	// Properties
 
 	/// <summary>
-	/// Get the index of the closest selected object, as it appears in SceneGraph.
+	/// Get the ID of the closest selected object.
 	/// </summary>
-	/// <returns>-1 if nothing is selected; index of the item selected in SceneGraph.</returns>
-	int GetClosestCurrentlySelectedIndex();
+	/// <returns>-1 if nothing is selected; ID of the item selected.</returns>
+	int GetClosestSelectedSceneObjectID();
 
 	/// <summary>
 	/// Get the Scene object that is currently selected.
@@ -73,7 +73,7 @@ public:
 	/// <summary>
 	/// Set the currently selected object based on the scene graph index.
 	/// </summary>
-	/// <param name="sceneGraphIndex"></param>
-	void SetCurrentlySelected(int sceneGraphIndex);
+	/// <param name="sceneObjectID"></param>
+	void SetCurrentlySelected(int sceneObjectID);
 };
 

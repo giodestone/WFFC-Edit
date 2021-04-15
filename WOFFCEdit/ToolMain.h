@@ -33,8 +33,8 @@ class ToolMain
 
 	ObjectPropertiesDialog* objectPropertiesDialog;
 	
-	std::vector<SceneObject> sceneGraph;	//our scenegraph storing all the objects in the current chunk
-	std::unordered_map<int, SceneObject*> idToSceneObject;
+	//std::vector<SceneObject> sceneGraph;	//our scenegraph storing all the objects in the current chunk
+	std::unordered_map<int, SceneObject> sceneGraph;
 	
 	ChunkObject	chunk;//our landscape chunk
 	int selectedObject;	//ID of current Selection
@@ -86,14 +86,14 @@ public:
 	/// Get the scene graph.
 	/// </summary>
 	/// <returns>A reference to the scene graph.</returns>
-	std::vector<SceneObject>& GetSceneGraph() { return sceneGraph; }
+	std::unordered_map<int, SceneObject>& GetSceneGraph() { return sceneGraph; }
 
 	/// <summary>
 	/// Get current selection index.
 	/// </summary>
 	/// <returns>-1 if nothing is selected; the index of the item in the Scene Graph.</returns>
 	/// <seealso cref="Camera::GetClosestCurrentlySelectedIndex"/>
-	int	GetClosestCurrentlySelectedIndex();
+	int	GetClosestSelectedSceneObjectID();
 
 	/// <summary>
 	/// Get object properties dialog.
