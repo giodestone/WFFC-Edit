@@ -25,6 +25,16 @@ public:
 	Game();
 	~Game();
 
+	// Properties
+
+	/// <summary>
+	/// Get a reference to the camera.
+	/// </summary>
+	/// <returns>A reference to the camera.</returns>
+	Camera& GetCamera() { return m_camera; }
+
+	HWND GetOwningWindow() { return owningWindow; }
+	
 	// Initialization and management
 	void Initialize(HWND window, int width, int height);
 	void SetGridState(bool state);
@@ -73,6 +83,8 @@ private:
 
 	void XM_CALLCONV DrawGrid(DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis, DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs, DirectX::GXMVECTOR color);
 
+	HWND owningWindow;
+	
 	// screen size
 	RECT m_ScreenDimensions;
 	

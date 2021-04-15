@@ -1,6 +1,11 @@
 #include "MFCFrame.h"
+
+#include <sstream>
+
 #include "resource.h"
 #include "ToolMain.h"
+
+#include "COleVariantHelpers.h"
 
 
 BEGIN_MESSAGE_MAP(CMyFrame, CFrameWnd)
@@ -20,27 +25,27 @@ static UINT indicators[] =
 
 //frame initialiser
 CMyFrame::CMyFrame()
+	: m_currentSelection(nullptr)
 {
-	m_selectionID = 999; //an obviously wrong selection ID,  to verify its working
 }
 
-void CMyFrame::SetCurrentSelectionID(int ID)
+void CMyFrame::SetCurrentSelection(SceneObject* currentSelection)
 {
-	m_selectionID = ID;
+	this->m_currentSelection = currentSelection;
 }
 
 void CMyFrame::OnUpdatePage(CCmdUI * pCmdUI)
 {
-	pCmdUI->Enable();
-	CString strPage;
-	strPage.Format(_T("%d"), m_selectionID);
-	pCmdUI->SetText(strPage);
+	//pCmdUI->Enable();
+	//pCmdUI->SetText(strPage);
 }
 
 void CMyFrame::OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized)
 {
 	if (!ToolMain::IsInitialised())
 		return;
+
+	ToolMain::GetInstance()->SetMainWindowReference(this);
 	
 	switch (nState)
 	{
@@ -87,16 +92,13 @@ int CMyFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators) / sizeof(UINT));
 	m_wndStatusBar.SetPaneInfo(1, ID_INDICATOR_TOOL, SBPS_NORMAL, rect.Width() - 500);//set width of status bar panel
+
+	ToolMain::SetMainWindowReference(this);
 	
 	return 0;
 }
 
 LRESULT CMyFrame::OnShowWindow(BOOL shouldShow, UINT status)
 {
-	if (shouldShow)
-	{
-		ToolMain::GetInstance()->SetMainWindowHwnd(m_hWnd);
-	}
-
 	return 0;
 }

@@ -21,6 +21,8 @@ public:
 	Selection();
 	~Selection();
 
+	static constexpr int NoSelectionIndex = -1;
+	
 	/// <summary>
 	/// Should be called before use once to set up references.
 	/// </summary>

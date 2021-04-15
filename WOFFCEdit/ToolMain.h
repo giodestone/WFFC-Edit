@@ -10,12 +10,14 @@
 #include "Selection.h"
 
 #include "ObjectPropertiesDialog.h"
+#include "MFCFrame.h"
 
 
 class ToolMain
 {
 	static ToolMain* instance;
 	static bool isInitialised;
+	static CMyFrame* mainWindow;
 
 	
 	Game d3dRenderer; //Instance of D3D rendering system for our tool
@@ -35,8 +37,6 @@ class ToolMain
 	ChunkObject	chunk;//our landscape chunk
 	int selectedObject;	//ID of current Selection
 
-	HWND mainWindowHwnd;
-
 	bool isFocused;
 	
 
@@ -46,8 +46,13 @@ class ToolMain
 	void UpdateInputCommands();
 
 	// Callbacks for events.
-	void OnMouseDown();
-	void OnMouseUp();
+	void OnLeftMouseDown();
+	void OnLeftMouseUp();
+
+	void OnRightMouseDown();
+	void OnRightMouseUp();
+
+	bool IsMouseInRenderer();
 
 public:	
 	ToolMain();
@@ -95,16 +100,15 @@ public:
 	ObjectPropertiesDialog* GetObjectPropertiesDialog() { return objectPropertiesDialog; }
 
 	/// <summary>
+	/// Set the reference to the main window.
+	/// </summary>
+	static void SetMainWindowReference(CMyFrame* mw) { mainWindow = mw; }
+	
+	/// <summary>
 	/// Set reference to the object properties dialog.
 	/// </summary>
 	/// <param name="objectPropertiesDialog"></param>
 	void SetObjectPropertiesDialogReference(ObjectPropertiesDialog* objectPropertiesDialog) { this->objectPropertiesDialog = objectPropertiesDialog; }
-
-	/// <summary>
-	/// Set the HWND of the main window that the camera preview is located.
-	/// </summary>
-	/// <param name="hWnd"></param>
-	void SetMainWindowHwnd(HWND hWnd) { mainWindowHwnd = hWnd; }
 	
 	// MFC Callbacks
 	

@@ -6,15 +6,49 @@
 
 Camera::Camera()
 	: moveRate(18.f)
-	, fastMoveMultiplier(2.f)
+	, speedUpMultiplier(2.f)
 	, camRotRate(180.f)
 	, position(0.f, 3.7f, -3.5f)
 	, rotation(0.f, 0.f, 0.f)
+	, isFocused(true)
+	, isMouseLookEnabled(false)
+	, wasMouseLookEnabled(false)
+	, ignoreInitialChange(false)
+	, mouseXOnBeginMouseLook(0)
+	, mouseYOnBeginMouseLook(0)
 {
 }
 
 Camera::~Camera()
 {
+}
+
+void Camera::UpdateMouseLook(DX::StepTimer const& timer)
+{
+	auto inputCommands = ToolMain::GetInstance()->GetInputCommands();
+
+	if (!isMouseLookEnabled)
+		return;
+
+	if (ignoreInitialChange)
+	{
+		ignoreInitialChange = false;
+		return;
+	}
+
+	POINT mousePt;
+	mousePt.x = inputCommands.mouseX;
+	mousePt.y = inputCommands.mouseY;
+	
+	ClientToScreen(ToolMain::GetInstance()->GetRenderer().GetOwningWindow(), &mousePt);
+	
+	auto deltaX = mousePt.x - mouseXOnBeginMouseLook;
+	auto deltaY = mousePt.y - mouseYOnBeginMouseLook;
+
+	rotation.x -= static_cast<float>(deltaY) / 6.f;
+	rotation.y -= static_cast<float>(deltaX) / 6.f;
+
+	SetCursorPos(mouseXOnBeginMouseLook, mouseYOnBeginMouseLook);
 }
 
 void Camera::UpdatePositionAndRotation(DX::StepTimer const& timer)
@@ -23,21 +57,25 @@ void Camera::UpdatePositionAndRotation(DX::StepTimer const& timer)
 
 	auto inputCommands = ToolMain::GetInstance()->GetInputCommands();
 
+	float speedMultiplier = 1.f;
+	if (inputCommands.speedUp)
+		speedMultiplier = speedUpMultiplier;
+
 	if (inputCommands.forward)
 	{
 		auto radians = rotation.y * 0.0174532f;
 
 		// Update the position.
-		position.x -= sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
-		position.z -= cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.x -= sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds()) * speedMultiplier;
+		position.z -= cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds()) * speedMultiplier;
 	}
 	if (inputCommands.back)
 	{
 		auto radians = rotation.y * 0.0174532f;
 
 		// Update the position.
-		position.x += sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
-		position.z += cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.x += sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
+		position.z += cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
 	}
 	if (inputCommands.right)
 	{
@@ -45,8 +83,8 @@ void Camera::UpdatePositionAndRotation(DX::StepTimer const& timer)
 		auto radians = rotation.y * 0.0174532f;
 
 		// Update the position.
-		position.z -= sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
-		position.x += cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.z -= sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
+		position.x += cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
 	}
 	if (inputCommands.left)
 	{
@@ -54,16 +92,16 @@ void Camera::UpdatePositionAndRotation(DX::StepTimer const& timer)
 		auto radians = rotation.y * 0.0174532f;
 
 		// Update the position.
-		position.z += sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
-		position.x -= cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.z += sinf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
+		position.x -= cosf(radians) * moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
 	}
 	if (inputCommands.up)
 	{
-		position.y += moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.y += moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
 	}
 	if (inputCommands.down)
 	{
-		position.y -= moveRate * static_cast<float>(timer.GetElapsedSeconds());
+		position.y -= moveRate * static_cast<float>(timer.GetElapsedSeconds() * speedMultiplier);
 	}
 
 
@@ -119,6 +157,53 @@ void Camera::UpdateViewMatrix()
 
 void Camera::Update(DX::StepTimer const& timer)
 {
-	UpdatePositionAndRotation(timer);
+	if (isFocused)
+	{
+		UpdatePositionAndRotation(timer);
+		UpdateMouseLook(timer);	
+	}
+	
 	UpdateViewMatrix();	
+}
+
+void Camera::OnLostFocus()
+{
+	isFocused = false;
+	OnEndMouseLook();
+}
+
+void Camera::OnRegainFocus()
+{
+	isFocused = true;
+}
+
+void Camera::OnMouseLook()
+{
+	if (!isFocused)
+		return;
+	
+	if (!wasMouseLookEnabled)
+	{
+		RECT rect;
+		GetClientRect(ToolMain::GetInstance()->GetRenderer().GetOwningWindow(), &rect);
+		POINT mousePt;
+		mousePt.x = rect.right / 2.f;
+		mousePt.y = rect.bottom / 2.f;
+		
+		ClientToScreen(ToolMain::GetInstance()->GetRenderer().GetOwningWindow(), &mousePt);
+
+		SetCursorPos(mousePt.x, mousePt.y);
+		mouseXOnBeginMouseLook = mousePt.x;
+		mouseYOnBeginMouseLook = mousePt.y;
+		wasMouseLookEnabled = true;
+		ignoreInitialChange = true;
+	}
+	
+	isMouseLookEnabled = true;
+}
+
+void Camera::OnEndMouseLook()
+{
+	isMouseLookEnabled = false;
+	wasMouseLookEnabled = false;
 }

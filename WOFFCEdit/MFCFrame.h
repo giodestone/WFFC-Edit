@@ -2,6 +2,7 @@
 #include <afxwin.h> 
 #include <afxext.h>
 #include "MFCRenderFrame.h"
+#include "SceneObject.h"
 
 
 
@@ -20,12 +21,14 @@ public:
 
 public:
 	CMyFrame();
-	void SetCurrentSelectionID(int ID);
+	void SetCurrentSelection(SceneObject* currentSelection);
 	afx_msg void OnUpdatePage(CCmdUI *pCmdUI);
 	afx_msg void OnActivate(UINT nState, CWnd* pWndOther, BOOL bMinimized);
 
 private:	//overrides
-	int		m_selectionID;	//
+	SceneObject* m_currentSelection;
+
+	const CString nothingSelectedText = "No Object Selected.";
 
 	//note the afx_message keyword is linking this method to message map access.
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

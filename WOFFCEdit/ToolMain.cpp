@@ -5,7 +5,9 @@
 #include "MFCFrame.h"
 
 ToolMain* ToolMain::instance = nullptr;
+CMyFrame* ToolMain::mainWindow = nullptr;
 bool ToolMain::isInitialised = false;
+
 
 //
 //ToolMain Class
@@ -316,6 +318,9 @@ void ToolMain::Tick(MSG *msg)
 		//add to scenegraph
 		//resend scenegraph to Direct X renderer
 
+	//toolInputCommands.previousMouseX = toolInputCommands.mouseX;
+	//toolInputCommands.previousMouseY = toolInputCommands.mouseY;
+	
 	//Renderer Update Call
 	d3dRenderer.Tick(&toolInputCommands);
 }
@@ -334,17 +339,25 @@ void ToolMain::UpdateInput(MSG * msg)
 		keyArray[msg->wParam] = false;
 		break;
 
-	case WM_MOUSEMOVE:
+	case WM_MOUSEMOVE:		
 		toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
 		toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
 		break;
 
 	case WM_LBUTTONDOWN:
-		OnMouseDown();
+		OnLeftMouseDown();
 		break;
 
 	case WM_LBUTTONUP:
-		OnMouseUp();
+		OnLeftMouseUp();
+		break;
+
+	case WM_RBUTTONDOWN:
+		OnRightMouseDown();
+		break;
+
+	case WM_RBUTTONUP:
+		OnRightMouseUp();
 		break;
 	}
 	//here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
@@ -407,30 +420,69 @@ void ToolMain::UpdateInputCommands()
 		toolInputCommands.rotDown = true;
 	}
 	else toolInputCommands.rotDown = false;
+
+	if (keyArray[VK_SHIFT])
+		toolInputCommands.speedUp = true;
+	else
+		toolInputCommands.speedUp = false;
 }
 
-void ToolMain::OnMouseDown()
+void ToolMain::OnLeftMouseDown()
 {
 	toolInputCommands.mouseLMBDown = true;
 	
 	selection.OnMouseDown();
+	
+
 }
 
-void ToolMain::OnMouseUp()
+void ToolMain::OnLeftMouseUp()
 {
 	toolInputCommands.mouseLMBDown = false;
 
 	selection.OnMouseUp();
+	
+}
+
+void ToolMain::OnRightMouseDown()
+{
+	if (IsMouseInRenderer())
+		GetRenderer().GetCamera().OnMouseLook();
+	else
+		GetRenderer().GetCamera().OnEndMouseLook();
+}
+
+void ToolMain::OnRightMouseUp()
+{
+	GetRenderer().GetCamera().OnEndMouseLook();
+}
+
+bool ToolMain::IsMouseInRenderer()
+{
+	if (mainWindow == nullptr)
+		return false;
+	
+	RECT rect;
+	GetWindowRect(mainWindow->m_hWnd, &rect);
+	
+	POINT mousePoint;
+	mousePoint.x = toolInputCommands.mouseX;
+	mousePoint.y = toolInputCommands.mouseY;
+	ClientToScreen(mainWindow->m_hWnd, &mousePoint);
+	
+	return PtInRect(&rect, mousePoint);
 }
 
 void ToolMain::OnMainWindowLostFocus()
 {
 	isFocused = false;
 	selection.OnLostFocus();
+	d3dRenderer.GetCamera().OnLostFocus();
 }
 
 void ToolMain::OnMainWindowRegainFocus()
 {
 	isFocused = true;
 	selection.OnRegainFocus();
+	d3dRenderer.GetCamera().OnRegainFocus();
 }
