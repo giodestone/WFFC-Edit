@@ -328,76 +328,78 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 		m_displayList.clear();		//if not, empty it
 	}
 
-	//for every item in the scenegraph
-	int numObjects = SceneGraph->size();
-	for (int i = 0; i < numObjects; i++)
+	for (auto& obj : *SceneGraph)
 	{
-		
-		//create a temp display object that we will populate then append to the display list.
-		DisplayObject newDisplayObject;
-		
-		//load model
-		std::wstring modelwstr = StringToWCHART(SceneGraph->at(i).model_path);							//convect string to Wchar
-		newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
-
-		//Load Texture
-		std::wstring texturewstr = StringToWCHART(SceneGraph->at(i).tex_diffuse_path);								//convect string to Wchar
-		HRESULT rs;
-		rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
-
-		//if texture fails.  load error default
-		if (rs)
-		{
-			CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
-		}
-
-		//apply new texture to models effect
-		newDisplayObject.m_model->UpdateEffects([&](IEffect* effect) //This uses a Lambda function,  if you dont understand it: Look it up.
-		{	
-			auto lights = dynamic_cast<BasicEffect*>(effect);
-			if (lights)
-			{
-				lights->SetTexture(newDisplayObject.m_texture_diffuse);			
-			}
-		});
-
-		//set position
-		newDisplayObject.m_position.x = SceneGraph->at(i).posX;
-		newDisplayObject.m_position.y = SceneGraph->at(i).posY;
-		newDisplayObject.m_position.z = SceneGraph->at(i).posZ;
-		
-		//setorientation
-		newDisplayObject.m_orientation.x = SceneGraph->at(i).rotX;
-		newDisplayObject.m_orientation.y = SceneGraph->at(i).rotY;
-		newDisplayObject.m_orientation.z = SceneGraph->at(i).rotZ;
-
-		//set scale
-		newDisplayObject.m_scale.x = SceneGraph->at(i).scaX;
-		newDisplayObject.m_scale.y = SceneGraph->at(i).scaY;
-		newDisplayObject.m_scale.z = SceneGraph->at(i).scaZ;
-
-		//set wireframe / render flags
-		newDisplayObject.m_render		= SceneGraph->at(i).editor_render;
-		newDisplayObject.m_wireframe	= SceneGraph->at(i).editor_wireframe;
-
-		newDisplayObject.m_light_type		= SceneGraph->at(i).light_type;
-		newDisplayObject.m_light_diffuse_r	= SceneGraph->at(i).light_diffuse_r;
-		newDisplayObject.m_light_diffuse_g	= SceneGraph->at(i).light_diffuse_g;
-		newDisplayObject.m_light_diffuse_b	= SceneGraph->at(i).light_diffuse_b;
-		newDisplayObject.m_light_specular_r = SceneGraph->at(i).light_specular_r;
-		newDisplayObject.m_light_specular_g = SceneGraph->at(i).light_specular_g;
-		newDisplayObject.m_light_specular_b = SceneGraph->at(i).light_specular_b;
-		newDisplayObject.m_light_spot_cutoff = SceneGraph->at(i).light_spot_cutoff;
-		newDisplayObject.m_light_constant	= SceneGraph->at(i).light_constant;
-		newDisplayObject.m_light_linear		= SceneGraph->at(i).light_linear;
-		newDisplayObject.m_light_quadratic	= SceneGraph->at(i).light_quadratic;
-		
-		m_displayList.push_back(newDisplayObject);
-		
+		m_displayList.push_back(BuildObject(obj));
 	}
 		
-		
-		
+}
+
+DisplayObject Game::BuildObject(SceneObject& sceneObject)
+{
+	auto device = m_deviceResources->GetD3DDevice();
+	auto devicecontext = m_deviceResources->GetD3DDeviceContext();
+	
+	//create a temp display object that we will populate then append to the display list.
+	DisplayObject newDisplayObject;
+
+	//load model
+	std::wstring modelwstr = StringToWCHART(sceneObject.model_path);							//convect string to Wchar
+	newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
+
+	//Load Texture
+	std::wstring texturewstr = StringToWCHART(sceneObject.tex_diffuse_path);								//convect string to Wchar
+	HRESULT rs;
+	rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
+
+	//if texture fails.  load error default
+	if (rs)
+	{
+		CreateDDSTextureFromFile(device, L"database/data/Error.dds", nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
+	}
+
+	//apply new texture to models effect
+	newDisplayObject.m_model->UpdateEffects([&](IEffect* effect) //This uses a Lambda function,  if you dont understand it: Look it up.
+	{
+		auto lights = dynamic_cast<BasicEffect*>(effect);
+		if (lights)
+		{
+			lights->SetTexture(newDisplayObject.m_texture_diffuse);
+		}
+	});
+
+	//set position
+	newDisplayObject.m_position.x = sceneObject.posX;
+	newDisplayObject.m_position.y = sceneObject.posY;
+	newDisplayObject.m_position.z = sceneObject.posZ;
+
+	//setorientation
+	newDisplayObject.m_orientation.x = sceneObject.rotX;
+	newDisplayObject.m_orientation.y = sceneObject.rotY;
+	newDisplayObject.m_orientation.z = sceneObject.rotZ;
+
+	//set scale
+	newDisplayObject.m_scale.x = sceneObject.scaX;
+	newDisplayObject.m_scale.y = sceneObject.scaY;
+	newDisplayObject.m_scale.z = sceneObject.scaZ;
+
+	//set wireframe / render flags
+	newDisplayObject.m_render = sceneObject.editor_render;
+	newDisplayObject.m_wireframe = sceneObject.editor_wireframe;
+
+	newDisplayObject.m_light_type = sceneObject.light_type;
+	newDisplayObject.m_light_diffuse_r = sceneObject.light_diffuse_r;
+	newDisplayObject.m_light_diffuse_g = sceneObject.light_diffuse_g;
+	newDisplayObject.m_light_diffuse_b = sceneObject.light_diffuse_b;
+	newDisplayObject.m_light_specular_r = sceneObject.light_specular_r;
+	newDisplayObject.m_light_specular_g = sceneObject.light_specular_g;
+	newDisplayObject.m_light_specular_b = sceneObject.light_specular_b;
+	newDisplayObject.m_light_spot_cutoff = sceneObject.light_spot_cutoff;
+	newDisplayObject.m_light_constant = sceneObject.light_constant;
+	newDisplayObject.m_light_linear = sceneObject.light_linear;
+	newDisplayObject.m_light_quadratic = sceneObject.light_quadratic;
+
+	return newDisplayObject;
 }
 
 void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
