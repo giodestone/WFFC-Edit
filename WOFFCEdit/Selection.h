@@ -55,7 +55,7 @@ public:
 	/// <summary>
 	/// Get the ID of the closest selected object.
 	/// </summary>
-	/// <returns>-1 if nothing is selected; ID of the item selected.</returns>
+	/// <returns>-1 (value of NothingSelectedID) if nothing is selected; ID of the item selected.</returns>
 	int GetClosestSelectedSceneObjectID();
 
 	/// <summary>

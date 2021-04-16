@@ -43,6 +43,7 @@ void CFloatEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 		this->EnableWindow(false);
 		this->EnableWindow(true);
+		UpdateContents();
 		return;
 	}
 

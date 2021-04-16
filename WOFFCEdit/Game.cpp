@@ -1,11 +1,14 @@
 //
 // Game.cpp
 //
+#include "stdafx.h"
 
 #include "pch.h"
 #include "Game.h"
 #include "DisplayObject.h"
 #include <string>
+
+#include "ToolMain.h"
 
 
 using namespace DirectX;
@@ -113,9 +116,7 @@ void Game::Tick(InputCommands *Input)
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-	//TODO  any more complex than this, and the camera should be abstracted out to somewhere else
-	//camera motion is on a plane, so kill the 7 component of the look direction
-
+    BuildDisplayList(ToolMain::GetInstance()->GetSceneGraph(), false);
 	m_camera.Update(timer);
 	m_view = m_camera.GetCameraViewMatrix();
 	
@@ -355,6 +356,7 @@ void Game::BuildDisplayList(std::unordered_map<int, SceneObject>& sceneGraph, bo
     	while (toRebuildIter != sceneGraph.end())
     	{
             m_displayList.at(toRebuildIter->first) = BuildObject(toRebuildIter->second);
+            toRebuildIter->second.UnmarkModified();
     		
             std::advance(toRebuildIter, 1);
     	}

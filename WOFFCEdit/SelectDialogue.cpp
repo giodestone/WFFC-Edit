@@ -47,6 +47,10 @@ void SelectDialogue::Select()
 
 	auto currentSelection = _ttoi(currentSelectionValue);
 	ToolMain::GetInstance()->GetSelection().SetCurrentlySelected(currentSelection);
+
+	auto objPropertiesDialog = ToolMain::GetInstance()->GetObjectPropertiesDialog();
+	if (objPropertiesDialog != nullptr)
+		objPropertiesDialog->SetCurrentSceneObject(ToolMain::GetInstance()->GetSelection().GetNearestSelectedSceneObject());
 }
 
 BOOL SelectDialogue::OnInitDialog()

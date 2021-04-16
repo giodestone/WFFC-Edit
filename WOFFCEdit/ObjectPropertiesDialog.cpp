@@ -68,7 +68,7 @@ void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 		DDX_Text(pDX, IDC_SCALEXEDIT, currentSceneObject->scaX);
 		DDX_Text(pDX, IDC_SCALEYEDIT, currentSceneObject->scaY);
 		DDX_Text(pDX, IDC_SCALEZEDIT, currentSceneObject->scaZ);
-
+		
 		currentSceneObject->MarkModified();
 	}
 }

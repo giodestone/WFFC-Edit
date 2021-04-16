@@ -5,6 +5,8 @@
   _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
 c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(190): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
 c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\camera.cpp(191): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+  Game.cpp
+  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
   MFCFrame.cpp
   _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
 c:\users\feliks\documents\university\cmp405\wffc-edit\woffcedit\resource.h(29): warning C4005: 'IDC_STATIC': macro redefinition
