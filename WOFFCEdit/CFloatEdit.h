@@ -1,7 +1,10 @@
 #pragma once
 #include <afxwin.h>
+
+#include "IEventDispatcher.h"
+
 class CFloatEdit :
-    public CEdit
+    public CEdit, public IEventDispatcher
 {
 protected:
 	void UpdateContents();

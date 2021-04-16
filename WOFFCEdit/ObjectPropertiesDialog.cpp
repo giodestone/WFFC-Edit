@@ -36,6 +36,11 @@ ObjectPropertiesDialog::~ObjectPropertiesDialog()
 		toolMain->SetObjectPropertiesDialogReference(nullptr);
 }
 
+void ObjectPropertiesDialog::OnRecievedEvent()
+{
+	UpdateData();
+}
+
 void ObjectPropertiesDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
@@ -103,6 +108,18 @@ void ObjectPropertiesDialog::InitialiseFloatEdits()
 	scaleXEdit.SetOwner(this);
 	scaleYEdit.SetOwner(this);
 	scaleZEdit.SetOwner(this);
+	
+	posXEdit.SubscribeReciever(this);
+	posYEdit.SubscribeReciever(this);
+	posZEdit.SubscribeReciever(this);
+	
+	rotXEdit.SubscribeReciever(this);
+	rotYEdit.SubscribeReciever(this);
+	rotZEdit.SubscribeReciever(this);
+	
+	scaleXEdit.SubscribeReciever(this);
+	scaleYEdit.SubscribeReciever(this);
+	scaleZEdit.SubscribeReciever(this);
 }
 
 void ObjectPropertiesDialog::InitialisePropertyGrid()
@@ -588,6 +605,7 @@ BEGIN_MESSAGE_MAP(ObjectPropertiesDialog, CDialogEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertiesGridPropertyUpdated)
 	ON_EN_CHANGE(IDC_NAMEEDIT, &ObjectPropertiesDialog::OnChangeOrUpdateNameEdit)
 	ON_EN_UPDATE(IDC_NAMEEDIT, &ObjectPropertiesDialog::OnChangeOrUpdateNameEdit)
+//	ON_MESSAGE(FIELD_VALUE_CONFIRM, &ObjectPropertiesDialog::OnFieldValueConfirm)
 END_MESSAGE_MAP()
 
 
@@ -601,3 +619,23 @@ void ObjectPropertiesDialog::OnChangeOrUpdateNameEdit()
 
 	currentSceneObject->name = CStringToString(contents);
 }
+
+
+//BOOL ObjectPropertiesDialog::PreTranslateMessage(MSG* pMsg)
+//{
+//	if (pMsg->message == WM_KEYDOWN)
+//	{
+//		if (pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE)
+//		{
+//			return TRUE;                // Do not process further
+//		}
+//	}
+//
+//	return CDialogEx::PreTranslateMessage(pMsg);
+//}
+
+
+//afx_msg LRESULT ObjectPropertiesDialog::OnFieldValueConfirm(WPARAM wParam, LPARAM lParam)
+//{
+//	return 0;
+//}

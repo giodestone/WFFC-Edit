@@ -11,7 +11,7 @@
 
 // ObjectPropertiesDialog dialog
 
-class ObjectPropertiesDialog : public CDialogEx
+class ObjectPropertiesDialog : public CDialogEx, public IEventReciever
 {
 	DECLARE_DYNAMIC(ObjectPropertiesDialog)
 
@@ -47,8 +47,14 @@ protected:
 
 	SceneObject* currentSceneObject;
 
+
+	virtual void OnRecievedEvent() override;
 	
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	/// <summary>
+	/// Update fields/variables they represent based on respective contents.
+	/// </summary>
+	/// <param name="pDX"></param>
+	virtual void DoDataExchange(CDataExchange* pDX) override;
 
 	virtual BOOL OnInitDialog() override;
 
@@ -116,4 +122,7 @@ public:
 	afx_msg void OnEnChangeOrUpdateScalexedit();
 	afx_msg void OnEnChangeOrUpdateScaleyedit();
 	afx_msg void OnEnChangeOrUpdateScalezedit();
+//	virtual BOOL PreTranslateMessage(MSG* pMsg);
+protected:
+//	afx_msg LRESULT OnFieldValueConfirm(WPARAM wParam, LPARAM lParam);
 };

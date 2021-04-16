@@ -21,6 +21,7 @@ void CFloatEdit::UpdateContents()
 	{
 		auto finalValue = std::stof(c);
 		SetWindowTextW(CString(std::to_wstring(finalValue).c_str()));
+		DispatchEvent(); // Value has been changed, update.
 	}
 	catch (...)
 	{
@@ -41,8 +42,6 @@ void CFloatEdit::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 	// Stop sound when return or tab are pressed.
 	if (nChar == VK_RETURN || nChar == VK_TAB)
 	{
-		this->EnableWindow(false);
-		this->EnableWindow(true);
 		UpdateContents();
 		return;
 	}

@@ -63,6 +63,8 @@
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="CFloatEdit.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="IEventDispatcher.cpp" />
+    <ClCompile Include="IEventReciever.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DeviceResources.h">
@@ -117,6 +119,8 @@
     <ClInclude Include="Selection.h" />
     <ClInclude Include="CFloatEdit.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="IEventDispatcher.h" />
+    <ClInclude Include="IEventReciever.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

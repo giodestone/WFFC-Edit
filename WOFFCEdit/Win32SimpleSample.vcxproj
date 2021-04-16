@@ -167,6 +167,8 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CFloatEdit.cpp" />
+    <ClCompile Include="IEventDispatcher.cpp" />
+    <ClCompile Include="IEventReciever.cpp" />
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="ChunkObject.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -187,6 +189,8 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CFloatEdit.h" />
+    <ClInclude Include="IEventDispatcher.h" />
+    <ClInclude Include="IEventReciever.h" />
     <ClInclude Include="Selection.h" />
     <ClInclude Include="ChunkObject.h" />
     <ClInclude Include="COleVariantHelpers.h" />
