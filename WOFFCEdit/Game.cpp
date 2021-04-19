@@ -372,7 +372,8 @@ DisplayObject Game::BuildObject(SceneObject& sceneObject)
 	DisplayObject newDisplayObject;
 
 	//load model
-	std::wstring modelwstr = StringToWCHART(sceneObject.model_path);							//convect string to Wchar
+	
+	std::wstring modelwstr = StringToWCHART(sceneObject.model_path); //convect string to Wchar
 	newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
 
 	//Load Texture

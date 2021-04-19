@@ -129,6 +129,7 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	propertiesGrid.MarkModifiedProperties();
 
 	static TCHAR BASED_CODE szFilter[] = _T("All Files(*.*)|*.*||"); // Any file filter picker because I'm unsure of file formats this may need.
+	static TCHAR BASED_CODE cmoSzFilter[] = _T("CMO Files(*.cmo)|*.cmo||"); // Any file filter picker because I'm unsure of file formats this may need.
 
 	databaseNameToProperty.insert({ "id",  new CMFCPropertyGridProperty(_T("ID"), COleVariant((long)0), _T("The objects' ID.")) });
 	auto* id = databaseNameToProperty["id"];
@@ -155,7 +156,7 @@ void ObjectPropertiesDialog::InitialisePropertyGrid()
 	auto* texDiffuse = databaseNameToProperty["tex_diffuse"];
 	renderingGroup->AddSubItem(texDiffuse);
 
-	databaseNameToProperty.insert({ "mesh", new CMFCPropertyGridFileProperty(_T("Mesh Path"), TRUE, COleVariant(_T("/../../.")), _T(".*"), 0, szFilter, _T("Path of the mesh model.")) });
+	databaseNameToProperty.insert({ "mesh", new CMFCPropertyGridFileProperty(_T("Mesh Path"), TRUE, COleVariant(_T("/../../.")), _T(".*"), 0, cmoSzFilter, _T("Path of the mesh model. Must be a .cmo file which can be converted by using DirectX meshconvert.")) });
 	auto* mesh = databaseNameToProperty["mesh"];
 	renderingGroup->AddSubItem(mesh);
 
@@ -500,10 +501,17 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 
 	// In order of database, excluding name, pos, rot, scl (they are seperate fields, set in DoDataExchange()), light_diffuse, light_specular rgb (which are above).
 	// Ideally this would be a switch statement but C++ is antique and doesnt allow for switch statements when looking up a dictionary.
+	// File paths are converted from absolute to relative paths before being applied.
 	else if (propertyToDatabaseName[currentProperty] == "mesh")
-		currentSceneObject->model_path = COleVariantToString(currentProperty->GetValue());
+	{
+		currentSceneObject->model_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));
+	}
 	else if (propertyToDatabaseName[currentProperty] == "tex_diffuse")
-		currentSceneObject->tex_diffuse_path = COleVariantToString(currentProperty->GetValue());
+	{
+		currentSceneObject->tex_diffuse_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+	}
 	else if (propertyToDatabaseName[currentProperty] == "render")
 		currentSceneObject->render = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "collision")
@@ -537,7 +545,10 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 	else if (propertyToDatabaseName[currentProperty] == "ai_node")
 		currentSceneObject->AINode = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "audio_file")
-		currentSceneObject->audio_path = COleVariantToString(currentProperty->GetValue());
+	{
+		currentSceneObject->audio_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+	}
 	else if (propertyToDatabaseName[currentProperty] == "volume")
 		currentSceneObject->volume = currentProperty->GetValue().fltVal;
 	else if (propertyToDatabaseName[currentProperty] == "pitch")

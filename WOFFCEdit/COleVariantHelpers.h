@@ -1,6 +1,7 @@
 #pragma once
 #include <afxdisp.h>
 #include <afxstr.h>
+#include <algorithm>
 #include <codecvt>
 #include <locale>
 #include <string>
@@ -28,6 +29,17 @@ namespace COleVariantHelpers
 		return std::string(converter.to_bytes(static_cast<LPCTSTR>(str)));
 	}
 
+	/// <summary>
+	/// Convert a WString to a regular string taking into account the differences in encoding.
+	/// </summary>
+	/// <param name="wstr">WString to convert.</param>
+	/// <returns>The converted string.</returns>
+	inline std::string WStringToString(const std::wstring wStr)
+	{
+		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+		return std::string(converter.to_bytes(wStr.c_str()));
+	}
+	
 	/// <summary>
 	/// Convert COleVariant to a string.
 	/// </summary>
@@ -75,5 +87,35 @@ namespace COleVariantHelpers
 		default:
 			throw std::exception("Something went wrong - probably memory corruption.");
 		}
+	}
+
+	/// <summary>
+	/// Convert an absolute path to a relative path from the working directory (typically where the .exe is located).
+	/// </summary>
+	/// <param name="absolutePath">The absolute path.</param>
+	/// <returns>A relative path.</returns>
+	inline std::string ToRelativePath(std::string absolutePath)
+	{
+		// LPWSTR/LPWCSTR is defined as wchar_t, so no need to cast.
+		
+		wchar_t currentDirPath[MAX_PATH];
+		if (GetCurrentDirectoryW(MAX_PATH, currentDirPath) == 0)
+		{
+			MessageBox(NULL, _T("A problem getting the current working directory has occurred. Place the executable file in another folder and try again."), _T("Error"), MB_OK);
+			return std::string();
+		}
+
+		wchar_t outPath[MAX_PATH];
+		if (!PathRelativePathToW(outPath, currentDirPath, FILE_ATTRIBUTE_DIRECTORY, StringToCString(absolutePath), NULL))
+		{
+			MessageBox(NULL, _T("A problem translating the path has occurred. Try selecting the path again."), _T("Error"), MB_OK | MB_ICONERROR);
+			return std::string();
+		}
+
+		auto finalPath = WStringToString(outPath);
+		std::replace(finalPath.begin(), finalPath.end(), '\\', '/'); // Replace two backward slashes with forward slashes.
+		finalPath.erase(finalPath.begin(), std::next(finalPath.begin(), 2)); // Remove the "./" at the start of the path.
+		
+		return finalPath;
 	}
 }
