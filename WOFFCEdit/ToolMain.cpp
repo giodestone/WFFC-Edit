@@ -220,87 +220,89 @@ void ToolMain::OnActionSave()
 	int rc;
 	char *sqlCommand;
 	char *ErrMSG = 0;
-	sqlite3_stmt *pResults;								//results of the query
+	sqlite3_stmt *pResults;	//results of the query
+
+	bool hasQueryFailed = false;
 	
-
-	//OBJECTS IN THE WORLD Delete them all
-	//prepare SQL Text
-	sqlCommand = "DELETE FROM Objects";	 //will delete the whole object table.   Slightly risky but hey.
-	rc = sqlite3_prepare_v2(databaseConnection, sqlCommand, -1, &pResults, 0);
-	sqlite3_step(pResults);
-
-	//Populate with our new objects
+	// Update existing objects in database with new values.
 	std::wstring sqlCommand2;
-	int numObjects = sceneGraph.size();	//Loop thru the scengraph.
 
-	/*for (int i = 0; i < numObjects; i++)
+	for (auto& pair : sceneGraph)
 	{
+		auto& sceneObject = pair.second;
 		std::stringstream command;
-		command << "INSERT INTO Objects " 
-			<<"VALUES(" << sceneGraph.at(i).ID << ","
-			<< sceneGraph.at(i).chunk_ID  << ","
-			<< "'" << sceneGraph.at(i).model_path <<"'" << ","
-			<< "'" << sceneGraph.at(i).tex_diffuse_path << "'" << ","
-			<< sceneGraph.at(i).posX << ","
-			<< sceneGraph.at(i).posY << ","
-			<< sceneGraph.at(i).posZ << ","
-			<< sceneGraph.at(i).rotX << ","
-			<< sceneGraph.at(i).rotY << ","
-			<< sceneGraph.at(i).rotZ << ","
-			<< sceneGraph.at(i).scaX << ","
-			<< sceneGraph.at(i).scaY << ","
-			<< sceneGraph.at(i).scaZ << ","
-			<< sceneGraph.at(i).render << ","
-			<< sceneGraph.at(i).collision << ","
-			<< "'" << sceneGraph.at(i).collision_mesh << "'" << ","
-			<< sceneGraph.at(i).collectable << ","
-			<< sceneGraph.at(i).destructable << ","
-			<< sceneGraph.at(i).health_amount << ","
-			<< sceneGraph.at(i).editor_render << ","
-			<< sceneGraph.at(i).editor_texture_vis << ","
-			<< sceneGraph.at(i).editor_normals_vis << ","
-			<< sceneGraph.at(i).editor_collision_vis << ","
-			<< sceneGraph.at(i).editor_pivot_vis << ","
-			<< sceneGraph.at(i).pivotX << ","
-			<< sceneGraph.at(i).pivotY << ","
-			<< sceneGraph.at(i).pivotZ << ","
-			<< sceneGraph.at(i).snapToGround << ","
-			<< sceneGraph.at(i).AINode << ","
-			<< "'" << sceneGraph.at(i).audio_path << "'" << ","
-			<< sceneGraph.at(i).volume << ","
-			<< sceneGraph.at(i).pitch << ","
-			<< sceneGraph.at(i).pan << ","
-			<< sceneGraph.at(i).one_shot << ","
-			<< sceneGraph.at(i).play_on_init << ","
-			<< sceneGraph.at(i).play_in_editor << ","
-			<< sceneGraph.at(i).min_dist << ","
-			<< sceneGraph.at(i).max_dist << ","
-			<< sceneGraph.at(i).camera << ","
-			<< sceneGraph.at(i).path_node << ","
-			<< sceneGraph.at(i).path_node_start << ","
-			<< sceneGraph.at(i).path_node_end << ","
-			<< sceneGraph.at(i).parent_id << ","
-			<< sceneGraph.at(i).editor_wireframe << ","
-			<< "'" << sceneGraph.at(i).name << "'" << ","
+		command << "UPDATE Objects "
+			<< "SET "
+			<< "mesh = '" << sceneObject.GetCollisionMeshPathStr() << "', "
+			<< "tex_diffuse = '" << sceneObject.GetTextureDiffusePathStr() << "', "
+			<< "position_x = " << sceneObject.posX << ", "
+			<< "position_y = " << sceneObject.posY << ", "
+			<< "position_z = " << sceneObject.posZ << ", "
+			<< "rotation_x = " << sceneObject.rotX << ", "
+			<< "rotation_y = " << sceneObject.rotY << ", "
+			<< "rotation_z = " << sceneObject.rotZ << ", "
+			<< "scale_x = " << sceneObject.scaX << ", "
+			<< "scale_y = " << sceneObject.scaY << ", "
+			<< "scale_z = " << sceneObject.scaZ << ", "
+			<< "render = " << sceneObject.render << ", "
+			<< "collision = " << sceneObject.collision << ", "
+			<< "collision_mesh = '" << sceneObject.GetCollisionMeshPathStr() << "', "
+			<< "collectable = " << sceneObject.collectable << ", "
+			<< "destructable = " << sceneObject.destructable << ", "
+			<< "health_amount = " << sceneObject.health_amount << ", "
+			<< "editor_render = " << sceneObject.editor_render << ", "
+			<< "editor_texture_vis = " << sceneObject.editor_texture_vis << ", "
+			<< "editor_normals_vis = " << sceneObject.editor_normals_vis << ", "
+			<< "editor_collision_vis = " << sceneObject.editor_collision_vis << ", "
+			<< "editor_pivot_vis = " << sceneObject.editor_pivot_vis << ", "
+			<< "pivot_x = " << sceneObject.pivotX << ", "
+			<< "pivot_y = " << sceneObject.pivotY << ", "
+			<< "pivot_z = " << sceneObject.pivotZ << ", "
+			<< "snap_to_ground = " << sceneObject.snapToGround << ","
+			<< "AI_node = " << sceneObject.AINode << ", "
+			<< "audio_file = '" << sceneObject.GetAudioPathStr() << "', "
+			<< "volume = " << sceneObject.volume << ", "
+			<< "pitch = " << sceneObject.pitch << ", "
+			<< "pan = " << sceneObject.pan << ", "
+			<< "one_shot = " << sceneObject.one_shot << ", "
+			<< "play_on_init = " << sceneObject.play_on_init << ", "
+			<< "play_in_editor = " << sceneObject.play_in_editor << ","
+			<< "min_dist = " << sceneObject.min_dist << ", "
+			<< "max_dist = " << sceneObject.max_dist << ", "
+			<< "camera = " << sceneObject.camera << ", "
+			<< "path_node = " << sceneObject.path_node << ", "
+			<< "path_node_start = " << sceneObject.path_node_start << ", "
+			<< "path_node_end = " << sceneObject.path_node_end << ", "
+			<< "parent_ID = " << sceneObject.parent_id << ", "
+			<< "editor_wireframe = " << sceneObject.editor_wireframe << ", "
+			<< "name = " << sceneObject.name << ", "
+			<< "light_type = " << sceneObject.light_type << ", "
+			<< "light_diffuse_r = " << sceneObject.light_diffuse_r << ", "
+			<< "light_diffuse_g = " << sceneObject.light_diffuse_g << ", "
+			<< "light_diffuse_b = " << sceneObject.light_diffuse_b << ", "
+			<< "light_specular_r = " << sceneObject.light_specular_r << ", "
+			<< "light_specular_g = " << sceneObject.light_specular_g << ", "
+			<< "light_specular_b = " << sceneObject.light_specular_b << ", "
+			<< "light_spot_cutoff = " << sceneObject.light_spot_cutoff << ", "
+			<< "light_constant = " << sceneObject.light_constant << ", "
+			<< "light_linear = " << sceneObject.light_linear << ", "
+			<< "light_quadratic = " << sceneObject.light_quadratic << " "
+  		
+			<< "WHERE ID IS " << sceneObject.ID << ";";
 
-			<< sceneGraph.at(i).light_type << ","
-			<< sceneGraph.at(i).light_diffuse_r << ","
-			<< sceneGraph.at(i).light_diffuse_g << ","
-			<< sceneGraph.at(i).light_diffuse_b << ","
-			<< sceneGraph.at(i).light_specular_r << ","
-			<< sceneGraph.at(i).light_specular_g << ","
-			<< sceneGraph.at(i).light_specular_b << ","
-			<< sceneGraph.at(i).light_spot_cutoff << ","
-			<< sceneGraph.at(i).light_constant << ","
-			<< sceneGraph.at(i).light_linear << ","
-			<< sceneGraph.at(i).light_quadratic
+		rc = sqlite3_prepare_v2(databaseConnection, command.str().c_str(), -1, &pResults, 0);
+		if (rc != SQLITE_OK)
+		{
+			OutputDebugStringA(command.str().c_str());
+			if (!hasQueryFailed)
+				MessageBox(NULL, L"Failed to save.", L"Error", MB_OK | MB_ICONERROR);
+			hasQueryFailed = true;
+		}
+		sqlite3_step(pResults);
+ 	}
 
-			<< ")";
-		std::string sqlCommand2 = command.str();
-		rc = sqlite3_prepare_v2(databaseConnection, sqlCommand2.c_str(), -1, &pResults, 0);
-		sqlite3_step(pResults);	
-	}*/
-	MessageBox(NULL, L"Objects Saved", L"Notification", MB_OK);
+	if (!hasQueryFailed)
+		MessageBox(NULL, L"Objects Saved", L"Notification", MB_OK | MB_ICONINFORMATION);
 }
 
 void ToolMain::OnActionSaveTerrain()
