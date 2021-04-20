@@ -93,8 +93,8 @@ namespace COleVariantHelpers
 	/// Convert an absolute path to a relative path from the working directory (typically where the .exe is located).
 	/// </summary>
 	/// <param name="absolutePath">The absolute path.</param>
-	/// <returns>A relative path.</returns>
-	inline std::string ToRelativePath(std::string absolutePath)
+	/// <returns>A relative path, if it is valid; an empty string otherwise.</returns>
+	inline std::wstring ToRelativePath(std::wstring absolutePath)
 	{
 		// LPWSTR/LPWCSTR is defined as wchar_t, so no need to cast.
 		
@@ -102,16 +102,16 @@ namespace COleVariantHelpers
 		if (GetCurrentDirectoryW(MAX_PATH, currentDirPath) == 0)
 		{
 			MessageBox(NULL, _T("A problem getting the current working directory has occurred. Place the executable file in another folder and try again."), _T("Error"), MB_OK);
-			return std::string();
+			return std::wstring();
 		}
 
 		wchar_t outPath[MAX_PATH];
-		if (!PathRelativePathToW(outPath, currentDirPath, FILE_ATTRIBUTE_DIRECTORY, StringToCString(absolutePath), NULL))
+		if (!PathRelativePathToW(outPath, currentDirPath, FILE_ATTRIBUTE_DIRECTORY, CString(absolutePath.c_str()), NULL))
 		{
-			return std::string();
+			return std::wstring();
 		}
 
-		auto finalPath = WStringToString(outPath);
+		auto finalPath = std::wstring(outPath);
 		std::replace(finalPath.begin(), finalPath.end(), '\\', '/'); // Replace two backward slashes with forward slashes.
 		finalPath.erase(finalPath.begin(), std::next(finalPath.begin(), 2)); // Remove the "./" at the start of the path.
 		

@@ -383,12 +383,12 @@ void ObjectPropertiesDialog::UpdateFieldsWithDataFromCurrentSceneObject()
 	// In database field order, excluding name, position, rotation, and scale.
 	databaseNameToProperty["id"]->SetValue(COleVariant((long)currentSceneObject->ID));
 	databaseNameToProperty["chunk_id"]->SetValue(COleVariant((long)currentSceneObject->chunk_ID));
-	databaseNameToProperty["mesh"]->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));
-	databaseNameToProperty["tex_diffuse"]->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+	databaseNameToProperty["mesh"]->SetValue(COleVariant(currentSceneObject->GetModelPath()));
+	databaseNameToProperty["tex_diffuse"]->SetValue(COleVariant(currentSceneObject->GetTextureDiffusePath()));
 	// pos, rot, sca would go here.
 	databaseNameToProperty["render"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->render), VT_BOOL));
 	databaseNameToProperty["collision"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->collision), VT_BOOL));
-	databaseNameToProperty["collision_mesh"]->SetValue(COleVariant(StringToCString(currentSceneObject->collision_mesh)));
+	databaseNameToProperty["collision_mesh"]->SetValue(COleVariant(currentSceneObject->GetCollisionMeshPath()));
 	databaseNameToProperty["collectable"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->collectable), VT_BOOL));
 	databaseNameToProperty["destructable"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->destructable), VT_BOOL));
 	databaseNameToProperty["health_amount"]->SetValue(COleVariant((long)currentSceneObject->health_amount));
@@ -402,7 +402,7 @@ void ObjectPropertiesDialog::UpdateFieldsWithDataFromCurrentSceneObject()
 	databaseNameToProperty["pivot_z"]->SetValue(COleVariant(currentSceneObject->pivotZ));
 	databaseNameToProperty["snap_to_ground"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->snapToGround), VT_BOOL));
 	databaseNameToProperty["ai_node"]->SetValue(COleVariant((short)BoolToVARIANTBOOL(currentSceneObject->AINode), VT_BOOL));
-	databaseNameToProperty["audio_file"]->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+	databaseNameToProperty["audio_file"]->SetValue(COleVariant(currentSceneObject->GetAudioPath()));
 	databaseNameToProperty["volume"]->SetValue(COleVariant(currentSceneObject->volume));
 	databaseNameToProperty["pitch"]->SetValue(COleVariant(currentSceneObject->pitch));
 	databaseNameToProperty["pan"]->SetValue(COleVariant(currentSceneObject->pan));
@@ -505,32 +505,30 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 	// File paths are converted from absolute to relative paths before being applied.
 	else if (propertyToDatabaseName[currentProperty] == "mesh")
 	{
-		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		auto path = ToRelativePath(currentProperty->GetValue().bstrVal);
+		if (IsPathValid(path) && !path.empty())
 		{
-			currentSceneObject->model_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));	
+			currentSceneObject->SetModelPath(CString(ToRelativePath(currentProperty->GetValue().bstrVal).c_str()));
 		}
 		else
 		{
 			MessageBox(L"Texture path invalid. Select a valid path.", L"Invalid Texture Path", MB_OK | MB_ICONERROR);
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));
 		}
+		currentProperty->SetValue(COleVariant(currentSceneObject->GetModelPath()));
 		
 	}
 	else if (propertyToDatabaseName[currentProperty] == "tex_diffuse")
 	{
-		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		auto path = ToRelativePath(currentProperty->GetValue().bstrVal);
+		if (IsPathValid(path) && !path.empty())
 		{
-			currentSceneObject->tex_diffuse_path = path;
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+			currentSceneObject->SetTextureDiffusePath(CString(path.c_str()));
 		}
 		else
 		{
 			MessageBox(L"Model path invalid. Select a valid path.", L"Invalid Model Path", MB_OK | MB_ICONERROR);
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
 		}
+		currentProperty->SetValue(COleVariant(currentSceneObject->GetModelPath()));
 	}
 	else if (propertyToDatabaseName[currentProperty] == "render")
 		currentSceneObject->render = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
@@ -538,8 +536,8 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 		currentSceneObject->collision = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "collision_mesh") // Less checks on collision mesh because a file type is not specified.
 	{
-		currentSceneObject->collision_mesh = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->collision_mesh)));
+		currentSceneObject->SetCollisionMeshPath(CString(ToRelativePath(currentProperty->GetValue().bstrVal).c_str()));
+		currentProperty->SetValue(COleVariant(currentSceneObject->GetCollisionMeshPath()));
 	}
 	else if (propertyToDatabaseName[currentProperty] == "collectable")
 		currentSceneObject->collectable = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
@@ -569,17 +567,16 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 		currentSceneObject->AINode = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "audio_file")
 	{
-		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		auto path = ToRelativePath(currentProperty->GetValue().bstrVal);
+		if (IsPathValid(path) && !path.empty())
 		{
-			currentSceneObject->audio_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+			currentSceneObject->SetAudioPath(CString(ToRelativePath(currentProperty->GetValue().bstrVal).c_str()));
 		}
 		else
 		{
 			MessageBox(L"Audio path invalid. Select a valid path.", L"Invalid Audio Path", MB_OK | MB_ICONERROR);
-			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
 		}
+		currentProperty->SetValue(COleVariant(currentSceneObject->GetAudioPath()));
 	}
 	else if (propertyToDatabaseName[currentProperty] == "volume")
 		currentSceneObject->volume = currentProperty->GetValue().fltVal;

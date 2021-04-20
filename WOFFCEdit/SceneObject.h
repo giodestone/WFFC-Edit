@@ -1,5 +1,7 @@
 #pragma once
 
+#include <afx.h>
+#include <afxstr.h>
 #include <string>
 
 
@@ -7,19 +9,21 @@
 
 
 class SceneObject
-{	
+{
 	bool isModified;
-	
-public:	
+
+	CString model_path;
+	CString tex_diffuse_path;
+	CString collision_mesh;
+	CString audio_path;
+
+public:
 	int ID;
 	int chunk_ID;
-	std::string model_path;
-	std::string tex_diffuse_path;
 	float posX, posY, posZ;
 	float rotX, rotY, rotZ;
 	float scaX, scaY, scaZ;
 	bool render, collision;
-	std::string collision_mesh;
 	bool collectable, destructable;
 	int health_amount;
 	bool editor_render, editor_texture_vis;
@@ -27,7 +31,6 @@ public:
 	float pivotX, pivotY, pivotZ;
 	bool snapToGround;
 	bool AINode;
-	std::string audio_path;
 	float volume;
 	float pitch;
 	float pan;
@@ -51,10 +54,25 @@ public:
 	float light_linear;
 	float light_quadratic;
 
-	
+
 	SceneObject();
 	~SceneObject();
 
+	
+	CString& GetModelPath() { return model_path; }
+	CString& GetTextureDiffusePath() { return tex_diffuse_path; }
+	CString& GetCollisionMeshPath() { return collision_mesh; }
+	CString& GetAudioPath() { return audio_path; }
+	std::string GetModelPathStr() const;
+	std::string GetTextureDiffusePathStr() const;
+	std::string GetCollisionMeshPathStr() const;
+	std::string GetAudioPathStr() const;
+
+	void SetModelPath(CString mp) { model_path = mp; }
+	void SetTextureDiffusePath(CString tdp) { tex_diffuse_path = tdp; }
+	void SetCollisionMeshPath(CString cmp) { collision_mesh = cmp; }
+	void SetAudioPath(CString ap) { audio_path = ap; }
+	
 	/// <summary>
 	/// Check whether the object is modified and must be redrawn.
 	/// </summary>

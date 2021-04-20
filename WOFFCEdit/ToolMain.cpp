@@ -76,7 +76,7 @@ void ToolMain::OnActionInitialise(HWND handle, int width, int height)
 	if (rc) 
 	{
 		TRACE("Can't open database");
-		//if the database cant open. Perhaps a more catastrophic error would be better here
+		MessageBox(NULL, L"Unable to open database.", L"Error", MB_OK | MB_ICONERROR);
 	}
 	else 
 	{
@@ -117,8 +117,8 @@ void ToolMain::OnActionLoad()
 		SceneObject newSceneObject;
 		newSceneObject.ID = sqlite3_column_int(pResults, 0);
 		newSceneObject.chunk_ID = sqlite3_column_int(pResults, 1);
-		newSceneObject.model_path		= reinterpret_cast<const char*>(sqlite3_column_text(pResults, 2));
-		newSceneObject.tex_diffuse_path = reinterpret_cast<const char*>(sqlite3_column_text(pResults, 3));
+		newSceneObject.SetModelPath(reinterpret_cast<const char*>(sqlite3_column_text(pResults, 2)));
+		newSceneObject.SetTextureDiffusePath(reinterpret_cast<const char*>(sqlite3_column_text(pResults, 3)));
 		newSceneObject.posX = sqlite3_column_double(pResults, 4);
 		newSceneObject.posY = sqlite3_column_double(pResults, 5);
 		newSceneObject.posZ = sqlite3_column_double(pResults, 6);
@@ -130,7 +130,7 @@ void ToolMain::OnActionLoad()
 		newSceneObject.scaZ = sqlite3_column_double(pResults, 12);
 		newSceneObject.render = sqlite3_column_int(pResults, 13);
 		newSceneObject.collision = sqlite3_column_int(pResults, 14);
-		newSceneObject.collision_mesh = reinterpret_cast<const char*>(sqlite3_column_text(pResults, 15));
+		newSceneObject.SetCollisionMeshPath(reinterpret_cast<const char*>(sqlite3_column_text(pResults, 15)));
 		newSceneObject.collectable = sqlite3_column_int(pResults, 16);
 		newSceneObject.destructable = sqlite3_column_int(pResults, 17);
 		newSceneObject.health_amount = sqlite3_column_int(pResults, 18);
@@ -144,7 +144,7 @@ void ToolMain::OnActionLoad()
 		newSceneObject.pivotZ = sqlite3_column_double(pResults, 26);
 		newSceneObject.snapToGround = sqlite3_column_int(pResults, 27);
 		newSceneObject.AINode = sqlite3_column_int(pResults, 28);
-		newSceneObject.audio_path = reinterpret_cast<const char*>(sqlite3_column_text(pResults, 29));
+		newSceneObject.SetAudioPath(reinterpret_cast<const char*>(sqlite3_column_text(pResults, 29)));
 		newSceneObject.volume = sqlite3_column_double(pResults, 30);
 		newSceneObject.pitch = sqlite3_column_double(pResults, 31);
 		newSceneObject.pan = sqlite3_column_int(pResults, 32);
@@ -233,7 +233,7 @@ void ToolMain::OnActionSave()
 	std::wstring sqlCommand2;
 	int numObjects = sceneGraph.size();	//Loop thru the scengraph.
 
-	for (int i = 0; i < numObjects; i++)
+	/*for (int i = 0; i < numObjects; i++)
 	{
 		std::stringstream command;
 		command << "INSERT INTO Objects " 
@@ -299,7 +299,7 @@ void ToolMain::OnActionSave()
 		std::string sqlCommand2 = command.str();
 		rc = sqlite3_prepare_v2(databaseConnection, sqlCommand2.c_str(), -1, &pResults, 0);
 		sqlite3_step(pResults);	
-	}
+	}*/
 	MessageBox(NULL, L"Objects Saved", L"Notification", MB_OK);
 }
 

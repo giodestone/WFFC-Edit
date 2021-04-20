@@ -358,7 +358,7 @@ DisplayObject Game::BuildObject(SceneObject& sceneObject)
 	//create a temp display object that we will populate then append to the display list.
 	DisplayObject newDisplayObject;
 
-	std::wstring modelwstr = StringToWCHART(sceneObject.model_path); //convect string to Wchar
+	std::wstring modelwstr = sceneObject.GetModelPath(); //convect string to Wchar
     if(std::filesystem::exists(modelwstr))
 		newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
     else
@@ -370,7 +370,7 @@ DisplayObject Game::BuildObject(SceneObject& sceneObject)
     }
 
 	//Load Texture
-	std::wstring texturewstr = StringToWCHART(sceneObject.tex_diffuse_path);								//convect string to Wchar
+	std::wstring texturewstr = sceneObject.GetTextureDiffusePath();								//convect string to Wchar
 	HRESULT rs;
 	rs = CreateDDSTextureFromFile(device, texturewstr.c_str(), nullptr, &newDisplayObject.m_texture_diffuse);	//load tex into Shader resource
 

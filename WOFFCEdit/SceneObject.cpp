@@ -1,5 +1,12 @@
+#include "stdafx.h"
+
+#include "pch.h"
+
 #include "SceneObject.h"
 
+#include "COleVariantHelpers.h"
+
+using namespace COleVariantHelpers;
 
 SceneObject::SceneObject()
 	: isModified(false)
@@ -53,6 +60,26 @@ SceneObject::SceneObject()
 
 SceneObject::~SceneObject()
 {
+}
+
+std::string SceneObject::GetModelPathStr() const
+{
+	return CStringToString(model_path);
+}
+
+std::string SceneObject::GetTextureDiffusePathStr() const
+{
+	return CStringToString(tex_diffuse_path);
+}
+
+std::string SceneObject::GetCollisionMeshPathStr() const
+{
+	return CStringToString(collision_mesh);
+}
+
+std::string SceneObject::GetAudioPathStr() const
+{
+	return CStringToString(audio_path);
 }
 
 void SceneObject::MarkModified()
