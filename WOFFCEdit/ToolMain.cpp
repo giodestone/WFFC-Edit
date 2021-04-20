@@ -275,7 +275,7 @@ void ToolMain::OnActionSave()
 			<< "path_node_end = " << sceneObject.path_node_end << ", "
 			<< "parent_ID = " << sceneObject.parent_id << ", "
 			<< "editor_wireframe = " << sceneObject.editor_wireframe << ", "
-			<< "name = " << sceneObject.name << ", "
+			<< "name = '" << sceneObject.name << "', "
 			<< "light_type = " << sceneObject.light_type << ", "
 			<< "light_diffuse_r = " << sceneObject.light_diffuse_r << ", "
 			<< "light_diffuse_g = " << sceneObject.light_diffuse_g << ", "
@@ -294,15 +294,19 @@ void ToolMain::OnActionSave()
 		if (rc != SQLITE_OK)
 		{
 			OutputDebugStringA(command.str().c_str());
-			if (!hasQueryFailed)
-				MessageBox(NULL, L"Failed to save.", L"Error", MB_OK | MB_ICONERROR);
+			std::wstringstream errorss;
+			errorss << "Failed to save object ID: " << sceneObject.ID << ".";
+			MessageBox(NULL, errorss.str().c_str(), L"Error", MB_OK | MB_ICONERROR);
 			hasQueryFailed = true;
 		}
 		sqlite3_step(pResults);
  	}
 
+	// Not being able to save isn't fatal.
 	if (!hasQueryFailed)
-		MessageBox(NULL, L"Objects Saved", L"Notification", MB_OK | MB_ICONINFORMATION);
+		MessageBox(NULL, L"Objects saved successfully.", L"Notification", MB_OK | MB_ICONINFORMATION);
+	else
+		MessageBox(NULL, L"Some objects not saved.", L"Error", MB_OK | MB_ICONERROR);
 }
 
 void ToolMain::OnActionSaveTerrain()
