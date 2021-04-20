@@ -22,6 +22,8 @@
 // provides a game loop.
 class Game : public DX::IDeviceNotify
 {
+	const std::wstring placeholderModelPath = L"database/date/placeholder.cmo";
+
 public:
 
 	Game();

@@ -13,6 +13,7 @@
 
 #include <locale>
 #include <codecvt>
+#include <filesystem>
 
 #include "ToolMain.h"
 
@@ -504,20 +505,42 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 	// File paths are converted from absolute to relative paths before being applied.
 	else if (propertyToDatabaseName[currentProperty] == "mesh")
 	{
-		currentSceneObject->model_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));
+		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		{
+			currentSceneObject->model_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));	
+		}
+		else
+		{
+			MessageBox(L"Texture path invalid. Select a valid path.", L"Invalid Texture Path", MB_OK | MB_ICONERROR);
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->model_path)));
+		}
+		
 	}
 	else if (propertyToDatabaseName[currentProperty] == "tex_diffuse")
 	{
-		currentSceneObject->tex_diffuse_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		{
+			currentSceneObject->tex_diffuse_path = path;
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+		}
+		else
+		{
+			MessageBox(L"Model path invalid. Select a valid path.", L"Invalid Model Path", MB_OK | MB_ICONERROR);
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->tex_diffuse_path)));
+		}
 	}
 	else if (propertyToDatabaseName[currentProperty] == "render")
 		currentSceneObject->render = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "collision")
 		currentSceneObject->collision = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
-	else if (propertyToDatabaseName[currentProperty] == "collision_mesh")
-		currentSceneObject->collision_mesh = COleVariantToString(currentProperty->GetValue());
+	else if (propertyToDatabaseName[currentProperty] == "collision_mesh") // Less checks on collision mesh because a file type is not specified.
+	{
+		currentSceneObject->collision_mesh = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->collision_mesh)));
+	}
 	else if (propertyToDatabaseName[currentProperty] == "collectable")
 		currentSceneObject->collectable = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "destructable")
@@ -546,8 +569,17 @@ afx_msg LRESULT ObjectPropertiesDialog::OnPropertiesGridPropertyUpdated(WPARAM w
 		currentSceneObject->AINode = VARIANTBOOLToBool(currentProperty->GetValue().boolVal);
 	else if (propertyToDatabaseName[currentProperty] == "audio_file")
 	{
-		currentSceneObject->audio_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
-		currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+		auto path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+		if (IsPathValid(StringToWCHART(path)) && !path.empty())
+		{
+			currentSceneObject->audio_path = ToRelativePath(COleVariantToString(currentProperty->GetValue()));
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+		}
+		else
+		{
+			MessageBox(L"Audio path invalid. Select a valid path.", L"Invalid Audio Path", MB_OK | MB_ICONERROR);
+			currentProperty->SetValue(COleVariant(StringToCString(currentSceneObject->audio_path)));
+		}
 	}
 	else if (propertyToDatabaseName[currentProperty] == "volume")
 		currentSceneObject->volume = currentProperty->GetValue().fltVal;
@@ -609,6 +641,11 @@ bool ObjectPropertiesDialog::VerifyContentsAreFloat(CEdit& field, float previous
 		field.SetWindowTextW(CString(std::to_wstring(previousValue).c_str()));
 		return false;
 	}
+}
+
+bool ObjectPropertiesDialog::IsPathValid(std::wstring path)
+{
+	return std::filesystem::exists(path);
 }
 
 

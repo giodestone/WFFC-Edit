@@ -5,10 +5,15 @@
 
 #include "pch.h"
 #include "Game.h"
+
+#include <sstream>
+#include <filesystem>
+
 #include "DisplayObject.h"
 #include <string>
 
 #include "ToolMain.h"
+#include "COleVariantHelpers.h"
 
 
 using namespace DirectX;
@@ -197,29 +202,11 @@ void Game::Render()
 
         XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
-        renderObject.second.m_model->Draw(context, *m_states, local, m_view, m_projection, false);	//last variable in draw,  make TRUE for wireframe
+		if (renderObject.second.m_render)
+			renderObject.second.m_model->Draw(context, *m_states, local, m_view, m_projection, false);	//last variable in draw,  make TRUE for wireframe
     	
         m_deviceResources->PIXEndEvent();
     }
-	
-	//int numRenderObjects = m_displayList.size();
-	//for (int i = 0; i < numRenderObjects; i++)
-	//{
-	//	m_deviceResources->PIXBeginEvent(L"Draw model");
-	//	const XMVECTORF32 scale = { m_displayList[i].m_scale.x, m_displayList[i].m_scale.y, m_displayList[i].m_scale.z };
-	//	const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
-
-	//	//convert degrees into radians for rotation matrix
-	//	XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415f / 180.f,
-	//														m_displayList[i].m_orientation.x *3.1415f / 180.f,
-	//														m_displayList[i].m_orientation.z *3.1415f / 180.f);
-
-	//	XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
-
-	//	m_displayList[i].m_model->Draw(context, *m_states, local, m_view, m_projection, false);	//last variable in draw,  make TRUE for wireframe
-
-	//	m_deviceResources->PIXEndEvent();
-	//}
 
 	m_deviceResources->PIXEndEvent();
 
@@ -371,10 +358,16 @@ DisplayObject Game::BuildObject(SceneObject& sceneObject)
 	//create a temp display object that we will populate then append to the display list.
 	DisplayObject newDisplayObject;
 
-	//load model
-	
 	std::wstring modelwstr = StringToWCHART(sceneObject.model_path); //convect string to Wchar
-	newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
+    if(std::filesystem::exists(modelwstr))
+		newDisplayObject.m_model = Model::CreateFromCMO(device, modelwstr.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
+    else
+    {
+        std::wstringstream ss;
+        ss << "Failed to load model \"" << modelwstr << "\". Loading placeholder..." << "\n";
+        OutputDebugStringW(ss.str().c_str());
+        newDisplayObject.m_model = Model::CreateFromCMO(device, placeholderModelPath.c_str(), *m_fxFactory, true);	//get DXSDK to load model "False" for LH coordinate system (maya)
+    }
 
 	//Load Texture
 	std::wstring texturewstr = StringToWCHART(sceneObject.tex_diffuse_path);								//convect string to Wchar
@@ -395,7 +388,7 @@ DisplayObject Game::BuildObject(SceneObject& sceneObject)
 		{
 			lights->SetTexture(newDisplayObject.m_texture_diffuse);
 		}
-	});
+	});	
 
 	//set position
 	newDisplayObject.m_position.x = sceneObject.posX;
@@ -587,40 +580,6 @@ std::vector<std::pair<float, int>> Game::MousePicking()
             }
         }
     }
-
-	//
-	//for (size_t i = 0; i < m_displayList.size(); i++)
-	//{
-	//	//Get the scale factor and translation of the object
-	//	const XMVECTORF32 scale = { m_displayList[i].m_scale.x,		m_displayList[i].m_scale.y,		m_displayList[i].m_scale.z };
-	//	const XMVECTORF32 translate = { m_displayList[i].m_position.x,	m_displayList[i].m_position.y,	m_displayList[i].m_position.z };
-
-	//	//convert euler angles into a quaternion for the rotation of the object
-	//	XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y * 3.1415f / 180.f,
-	//		m_displayList[i].m_orientation.x * 3.1415f / 180.f,
-	//		m_displayList[i].m_orientation.z * 3.1415f / 180.f);
-
-	//	//create set the matrix of the selected object in the world based on the translation, scale and rotation.
-	//	XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
-
-	//	//Unproject the points on the near and far plane, with respect to the matrix we just created.
-	//	XMVECTOR nearPoint = XMVector3Unproject(nearSource, 0.0f, 0.0f, static_cast<float>(m_ScreenDimensions.right), static_cast<float>(m_ScreenDimensions.bottom), m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
-	//	XMVECTOR farPoint = XMVector3Unproject(farSource, 0.0f, 0.0f, static_cast<float>(m_ScreenDimensions.right), static_cast<float>(m_ScreenDimensions.bottom), m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
-
-	//	//turn the transformed points into our picking vector. 
-	//	XMVECTOR pickingVector = farPoint - nearPoint;
-	//	pickingVector = XMVector3Normalize(pickingVector);
-	//	
-	//	//loop through mesh list for object
-	//	for (size_t y = 0; y < m_displayList[i].m_model.get()->meshes.size(); y++)
-	//	{
-	//		//checking for ray intersection
-	//		if (m_displayList[i].m_model.get()->meshes[y]->boundingBox.Intersects(nearPoint, pickingVector, pickedDistance))
-	//		{
-	//			intersectingIDs.push_back(std::make_pair(pickedDistance, i));
-	//		}
-	//	}
-	//}
 
 	// sort by distance, ascending (closest first).
 	std::sort(intersectingIDs.begin(), intersectingIDs.end(), [] (std::pair<float, int> a, std::pair<float, int> b) -> bool

@@ -108,7 +108,6 @@ namespace COleVariantHelpers
 		wchar_t outPath[MAX_PATH];
 		if (!PathRelativePathToW(outPath, currentDirPath, FILE_ATTRIBUTE_DIRECTORY, StringToCString(absolutePath), NULL))
 		{
-			MessageBox(NULL, _T("A problem translating the path has occurred. Try selecting the path again."), _T("Error"), MB_OK | MB_ICONERROR);
 			return std::string();
 		}
 

@@ -48,6 +48,9 @@ protected:
 	SceneObject* currentSceneObject;
 
 
+	/// <summary>
+	/// When event is recieved, call DoDataExchange() to update curentSceneObject with values in the edit fields.
+	/// </summary>
 	virtual void OnRecievedEvent() override;
 	
 	/// <summary>
@@ -58,6 +61,9 @@ protected:
 
 	virtual BOOL OnInitDialog() override;
 
+	/// <summary>
+	/// Setup event this object to receive updates when float edits are updated.
+	/// </summary>
 	void InitialiseFloatEdits();
 	
 	/// <summary>
@@ -70,8 +76,15 @@ protected:
 	/// </summary>
 	void InitialisePropertyToDatabaseNameLookup();
 
+	/// <summary>
+	/// Update the data of the editable fields with information from the current scene object.
+	/// </summary>
 	void UpdateFieldsWithDataFromCurrentSceneObject();
 
+	/// <summary>
+	/// Enable/disable of all fields.
+	/// </summary>
+	/// <param name="state"></param>
 	void SetAllFieldsEnableState(bool state);
 
 	/// <summary>
@@ -82,6 +95,8 @@ protected:
 	/// <returns>True if a double; false if not.</returns>
 	bool VerifyContentsAreFloat(CEdit& field, float previousValue, float& outValue);
 
+	bool IsPathValid(std::wstring path);
+	
 	/// <summary>
 	/// Event callback for when propertiesGrid property is updated. Called by MFC. Updates the changes onto the object that is being modified.
 	/// </summary>
